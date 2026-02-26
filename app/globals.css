@@ -2,25 +2,103 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1a1a2e;
+  --deep-blue: #1e3a8a;
+  --sky-blue: #e0f2fe;
+  --sky-blue-mid: #7dd3fc;
+  --coral: #f87171;
+  --coral-light: #fef2f2;
+  --mint: #d1fae5;
+  --slate-light: #f8fafc;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-deep-blue: #1e3a8a;
+  --color-deep-blue-light: #2563eb;
+  --color-sky-blue: #e0f2fe;
+  --color-sky-blue-mid: #7dd3fc;
+  --color-coral: #f87171;
+  --color-coral-light: #fef2f2;
+  --color-mint: #d1fae5;
+  --color-slate-light: #f8fafc;
+  --font-pretendard: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  scroll-behavior: smooth;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* HPG Axis animation */
+@keyframes signal-flow {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes pulse-dot {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-signal {
+  animation: signal-flow 2s ease-in-out infinite;
+}
+
+.animate-signal-delay-1 {
+  animation: signal-flow 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-signal-delay-2 {
+  animation: signal-flow 2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
 }

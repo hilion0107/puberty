@@ -31,7 +31,7 @@ import {
 /* ─────────────── Animation variants ─────────────── */
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" as const } },
 };
 
 const staggerContainer = {
@@ -431,8 +431,8 @@ export default function Home() {
                 key={i}
                 variants={scaleIn}
                 className={`flex items-start gap-4 rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${item.highlight
-                    ? "border-coral/30 bg-coral-light"
-                    : "border-gray-100 bg-white"
+                  ? "border-coral/30 bg-coral-light"
+                  : "border-gray-100 bg-white"
                   }`}
               >
                 <span className="text-2xl">{item.icon}</span>
@@ -441,10 +441,10 @@ export default function Home() {
                     <span className="font-bold text-gray-800">{item.label}</span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${item.gender === "여아"
-                          ? "bg-pink-100 text-pink-700"
-                          : item.gender === "남아"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-600"
+                        ? "bg-pink-100 text-pink-700"
+                        : item.gender === "남아"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-600"
                         }`}
                     >
                       {item.gender}

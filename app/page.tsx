@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import { CountUp } from "./components/CountUp";
 import {
   Brain,
   Search,
@@ -30,7 +32,7 @@ import {
 
 /* ─────────────── Animation variants ─────────────── */
 const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" as const } },
 };
 
@@ -168,16 +170,23 @@ export default function Home() {
       {/* ─── Sticky Nav ─── */}
       <nav className="fixed top-0 z-50 w-full border-b border-gray-100/60 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <a href="#" className="flex items-center gap-2 font-bold text-deep-blue">
-            <Heart className="h-6 w-6 text-coral" fill="currentColor" />
-            <span className="text-lg tracking-tight">성조숙증 가이드</span>
-          </a>
-          <div className="hidden gap-1 md:flex">
+          <div className="flex items-center gap-6">
+            <a href="/" className="flex items-center gap-2 font-bold text-deep-blue">
+              <Heart className="h-6 w-6 text-coral" fill="currentColor" />
+              <span className="text-lg tracking-tight whitespace-nowrap">성조숙증 클리닉</span>
+            </a>
+            {/* Main GNB for Page switching */}
+            <div className="hidden lg:flex items-center gap-2 border-l border-gray-200 pl-6">
+              <a href="/" className="px-3 py-1.5 text-sm font-bold text-deep-blue bg-deep-blue/10 rounded-full transition-colors">성조숙증 클리닉</a>
+              <a href="/growth" className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-growth-blue transition-colors">저신장 클리닉</a>
+            </div>
+          </div>
+          <div className="hidden gap-1 xl:flex">
             {navLinks.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-deep-blue/5 hover:text-deep-blue"
+                className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-deep-blue/5 hover:text-deep-blue whitespace-nowrap"
               >
                 {l.label}
               </a>
@@ -191,467 +200,395 @@ export default function Home() {
         id="definition"
         className="relative overflow-hidden bg-gradient-to-br from-deep-blue via-blue-800 to-blue-900 pb-20 pt-28 md:pb-32 md:pt-36"
       >
-        {/* Decorative circles */}
         <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-sky-blue-mid/10" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-sky-blue-mid/5" />
 
         <div className="relative mx-auto max-w-6xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-sky-200 backdrop-blur">
-              보호자 설명 가이드
-            </span>
-            <h1 className="mt-4 text-3xl font-extrabold leading-tight text-white md:text-5xl md:leading-tight">
-              우리 아이의 건강한 성장,
-              <br />
-              <span className="bg-gradient-to-r from-sky-300 to-cyan-200 bg-clip-text text-transparent">
-                성조숙증 바로 알기
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-sky-200 backdrop-blur">
+                보호자 설명 가이드
               </span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-blue-100/80 md:text-lg">
-              성조숙증은 또래보다 사춘기가 이르게 시작되는 현상입니다. 적절한
-              시기에 정확한 진단과 치료를 시작하면 아이의 건강한 성장을 도울 수
-              있습니다.
-            </p>
-          </motion.div>
+              <h1 className="mt-4 text-3xl font-extrabold leading-tight text-white md:text-5xl md:leading-tight">
+                우리 아이의 건강한 성장,
+                <br />
+                <span className="bg-gradient-to-r from-sky-300 to-cyan-200 bg-clip-text text-transparent">
+                  성조숙증 바로 알기
+                </span>
+              </h1>
+              <p className="mt-6 max-w-md text-base leading-relaxed text-blue-100/80 md:text-lg">
+                성조숙증은 또래보다 사춘기가 이르게 시작되는 현상입니다. 적절한
+                시기에 정확한 진단과 치료를 시작하면 건강한 성장을 도울 수
+                있습니다.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <Image
+                src="/images/hero_cute_child.png"
+                alt="Happy child measuring height"
+                width={800}
+                height={800}
+                className="w-full rounded-3xl shadow-2xl object-cover aspect-video lg:aspect-square"
+              />
+            </motion.div>
+          </div>
 
-          {/* HPG Axis Infographic */}
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.3 }}
-            className="mx-auto mt-16 max-w-3xl"
+            transition={{ duration: 0.9, delay: 0.4 }}
+            className="mx-auto mt-20 max-w-5xl"
           >
-            <div className="rounded-3xl border border-white/10 bg-white/10 p-8 backdrop-blur-md md:p-12">
-              <h3 className="mb-8 text-center text-lg font-bold text-white">
-                시상하부-뇌하수체-생식샘 축 (HPG Axis)
+            <div className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-md md:p-8">
+              <h3 className="mb-4 text-center text-xl font-bold text-white md:text-2xl">
+                성조숙증의 원인: <span className="text-sky-300">성장 지휘본부</span>의 조기 활성화
               </h3>
-
-              {/* Flow */}
-              <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center md:gap-0">
-                {/* Brain */}
-                <div className="flex flex-col items-center">
-                  <div className="animate-signal flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg shadow-purple-500/30">
-                    <Brain className="h-10 w-10 text-white" />
-                  </div>
-                  <span className="mt-2 text-sm font-semibold text-purple-200">
-                    시상하부
-                  </span>
-                  <span className="text-xs text-purple-300/70">GnRH 분비</span>
-                </div>
-
-                {/* Arrow */}
-                <div className="flex items-center md:mx-4">
-                  <div className="flex h-8 flex-col items-center md:h-auto md:flex-row">
-                    <div className="flex flex-col items-center gap-1 md:flex-row">
-                      <CircleDot className="animate-pulse-dot h-3 w-3 text-sky-300" />
-                      <CircleDot className="animate-pulse-dot h-3 w-3 text-sky-300" style={{ animationDelay: "0.3s" }} />
-                      <CircleDot className="animate-pulse-dot h-3 w-3 text-sky-300" style={{ animationDelay: "0.6s" }} />
-                      <ArrowDown className="h-5 w-5 text-sky-300 md:-rotate-90" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Pituitary */}
-                <div className="flex flex-col items-center">
-                  <div className="animate-signal-delay-1 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-500/30">
-                    <Sparkles className="h-10 w-10 text-white" />
-                  </div>
-                  <span className="mt-2 text-sm font-semibold text-blue-200">
-                    뇌하수체
-                  </span>
-                  <span className="text-xs text-blue-300/70">LH / FSH 분비</span>
-                </div>
-
-                {/* Arrow */}
-                <div className="flex items-center md:mx-4">
-                  <div className="flex h-8 flex-col items-center md:h-auto md:flex-row">
-                    <div className="flex flex-col items-center gap-1 md:flex-row">
-                      <CircleDot className="animate-pulse-dot h-3 w-3 text-cyan-300" />
-                      <CircleDot className="animate-pulse-dot h-3 w-3 text-cyan-300" style={{ animationDelay: "0.3s" }} />
-                      <CircleDot className="animate-pulse-dot h-3 w-3 text-cyan-300" style={{ animationDelay: "0.6s" }} />
-                      <ArrowDown className="h-5 w-5 text-cyan-300 md:-rotate-90" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Gonads */}
-                <div className="flex flex-col items-center">
-                  <div className="animate-signal-delay-2 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 shadow-lg shadow-rose-500/30">
-                    <Heart className="h-10 w-10 text-white" />
-                  </div>
-                  <span className="mt-2 text-sm font-semibold text-pink-200">
-                    생식샘
-                  </span>
-                  <span className="text-xs text-pink-300/70">
-                    성호르몬 분비
-                  </span>
-                </div>
-              </div>
-
-              <p className="mt-8 text-center text-sm leading-relaxed text-blue-100/70">
-                성조숙증은 이 축이{" "}
-                <strong className="text-white">또래보다 일찍 활성화</strong>되어
-                8세(여아) 또는 9세(남아) 이전에 2차 성징이 나타나는 상태입니다.
+              <p className="mb-6 text-center text-sm leading-relaxed text-blue-100/90 md:text-base">
+                <strong className="text-white">시상하부와 뇌하수체</strong>는 우리 몸의 <strong>'성장 지휘본부'</strong>입니다.<br className="hidden md:block" />
+                이 지휘본부에서 일찍 <strong>'성장 스위치'</strong>(신호 전달)를 켜게 되면, <br className="hidden md:block" />
+                남자는 고환, 여자는 난소에서 성호르몬이 조기에 분비되어 성조숙증이 시작됩니다.
               </p>
+              <div className="mx-auto aspect-[4/3] max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl relative">
+                <Image
+                  src="/images/hpg_cute_axis_v2.png"
+                  alt="HPG Axis Infographic - Growth Command Center"
+                  fill
+                  className="object-contain p-2"
+                />
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* ═══════ Section 2: Diagnosis ═══════ */}
-      <Section id="diagnosis" bg="bg-white">
-        <SectionTitle
-          icon={Search}
-          title="정확한 진단을 위한 필수 검사"
-          subtitle="성조숙증의 진단은 단일 검사가 아닌, 여러 가지 평가를 종합하여 결정됩니다."
-        />
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid gap-8 md:grid-cols-2"
-        >
-          {/* Card 1 - Bone Age */}
-          <motion.div
-            variants={scaleIn}
-            className="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-          >
-            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50">
-              <Bone className="h-7 w-7 text-deep-blue" />
-            </div>
-            <h3 className="mb-3 text-xl font-bold text-gray-900">골연령 검사</h3>
-            <p className="mb-4 text-sm leading-relaxed text-gray-500">
-              왼손 엑스레이(X-ray)를 촬영하여 뼈의 성숙도를 확인합니다. 실제
-              나이보다 골연령이 많이 앞서 있다면 성장판이 일찍 닫힐 수 있어
-              적극적인 관리가 필요합니다.
-            </p>
-            <div className="rounded-xl bg-sky-blue/50 p-4">
-              <p className="text-sm font-medium text-deep-blue">
-                💡 골연령이 실제 나이보다 1년 이상 앞서 있으면 주의가 필요합니다.
-              </p>
-            </div>
-          </motion.div>
+      <section id="diagnosis" className="bg-white py-20 md:py-32">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Even Section: Left Image */}
+            <motion.div
+              variants={scaleIn}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="order-last lg:order-first"
+            >
+              <Image
+                src="/images/medical_cute_desk.png"
+                alt="Pediatrician desk"
+                width={800}
+                height={800}
+                className="w-full rounded-3xl shadow-xl object-cover aspect-video lg:aspect-square"
+              />
+            </motion.div>
 
-          {/* Card 2 - GnRH Stimulation Test */}
-          <motion.div
-            variants={scaleIn}
-            className="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-          >
-            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50">
-              <Syringe className="h-7 w-7 text-deep-blue" />
-            </div>
-            <h3 className="mb-3 text-xl font-bold text-gray-900">
-              성조숙증 자극 검사 (GnRH 자극 검사)
-            </h3>
-            <p className="mb-4 text-sm leading-relaxed text-gray-500">
-              GnRH(성선자극호르몬 방출호르몬)를 투여한 후 시간대별로 혈액을
-              채취하여 LH, FSH 호르몬의 반응 수치를 측정합니다. 이 검사를 통해
-              진성 성조숙증 여부를 정확하게 판단합니다.
-            </p>
-            <div className="rounded-xl bg-sky-blue/50 p-4">
-              <p className="text-sm font-medium text-deep-blue">
-                💡 LH 최고치가 기준 이상이면 진성 성조숙증으로 진단합니다.
-              </p>
-            </div>
-          </motion.div>
-        </motion.div>
-      </Section>
+            {/* Right Text */}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <div className="mb-10 text-left">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-light/30">
+                  <Search className="h-6 w-6 text-coral" />
+                </div>
+                <h2 className="mb-4 text-3xl font-bold text-deep-blue md:text-4xl">
+                  정확한 진단을 위한 필수 검사
+                </h2>
+                <p className="text-lg text-gray-500">
+                  단일 검사가 아닌, 여러 가지 평가를 종합하여 진단합니다.
+                </p>
+              </div>
+
+              <div className="grid gap-6">
+                <motion.div
+                  variants={fadeInUp}
+                  className="group rounded-2xl border border-gray-100 bg-gray-50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-xl hover:bg-white"
+                >
+                  <div className="mb-4 flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100">
+                      <Bone className="h-6 w-6 text-deep-blue" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">골연령 검사</h3>
+                  </div>
+                  <p className="text-sm leading-relaxed text-gray-500">
+                    왼손 엑스레이를 촬영하여 뼈의 성숙도를 확인합니다. 실제 나이보다 골연령이 앞서 있는지 정확히 평가합니다.
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  variants={fadeInUp}
+                  className="group rounded-2xl border border-gray-100 bg-gray-50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-xl hover:bg-white"
+                >
+                  <div className="mb-4 flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100">
+                      <Syringe className="h-6 w-6 text-deep-blue" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">GnRH 자극 검사</h3>
+                  </div>
+                  <p className="text-sm leading-relaxed text-gray-500">
+                    시간대별 호르몬 변화 수치(LH, FSH)를 측정, 진성 성조숙증 여부를 정확 판단합니다.
+                  </p>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* ═══════ Section 3: Why Treat ═══════ */}
-      <Section id="why-treat" bg="bg-slate-light">
-        <SectionTitle
-          icon={AlertTriangle}
-          title="왜 조기에 치료해야 할까요?"
-          subtitle="치료 없이 방치하면 다음과 같은 문제가 발생할 수 있습니다."
-        />
-
-        {/* 2차 성징 체크리스트 */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mb-14"
-        >
-          <h3 className="mb-6 text-center text-lg font-bold text-gray-800">
-            🔍 이런 증상이 보이나요? — 2차 성징 체크리스트
-          </h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                icon: "🎀",
-                label: "가슴 멍울 / 발달",
-                desc: "여아에서 가장 먼저 나타나는 신호",
-                highlight: true,
-                gender: "여아",
-              },
-              {
-                icon: "🧬",
-                label: "고환 크기 증가",
-                desc: "남아에서 가장 먼저 나타나는 신호",
-                highlight: true,
-                gender: "남아",
-              },
-              {
-                icon: "👕",
-                label: "머리 냄새 / 기름기",
-                desc: "피지 분비 증가로 인한 체취 변화",
-                highlight: false,
-                gender: "공통",
-              },
-              {
-                icon: "🌋",
-                label: "여드름",
-                desc: "호르몬 변화로 인한 피부 변화",
-                highlight: false,
-                gender: "공통",
-              },
-              {
-                icon: "🌿",
-                label: "음모 / 겨드랑이 털",
-                desc: "체모가 또래보다 빠르게 발달",
-                highlight: false,
-                gender: "공통",
-              },
-              {
-                icon: "📏",
-                label: "급격한 키 성장",
-                desc: "일시적이나 성장판 조기 폐쇄 위험",
-                highlight: false,
-                gender: "공통",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                variants={scaleIn}
-                className={`flex items-start gap-4 rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${item.highlight
-                  ? "border-coral/30 bg-coral-light"
-                  : "border-gray-100 bg-white"
-                  }`}
-              >
-                <span className="text-2xl">{item.icon}</span>
-                <div>
-                  <div className="mb-1 flex items-center gap-2">
-                    <span className="font-bold text-gray-800">{item.label}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${item.gender === "여아"
-                        ? "bg-pink-100 text-pink-700"
-                        : item.gender === "남아"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-600"
-                        }`}
-                    >
-                      {item.gender}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          <p className="mt-4 text-center text-sm text-coral font-semibold">
-            ⚠️ 여아는 &quot;가슴 발달&quot;, 남아는 &quot;고환 크기 증가&quot;가 가장 중요한 첫 번째 신호입니다.
-          </p>
-        </motion.div>
-
-        {/* 3 Risk Cards */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid gap-8 md:grid-cols-3"
-        >
-          {[
-            {
-              icon: TrendingDown,
-              title: "최종 성인키 손실",
-              desc: "성장판이 일찍 닫혀 충분히 자랄 시간이 부족해집니다. 치료하지 않으면 예상보다 5~10cm 이상 작을 수 있습니다.",
-              color: "from-red-500 to-rose-600",
-              bg: "bg-red-50",
-            },
-            {
-              icon: Users,
-              title: "빠른 2차 성징",
-              desc: "또래보다 빠른 신체 변화로 인해 아이가 심리적 스트레스를 받을 수 있으며, 사회적 적응에 어려움을 겪을 수 있습니다.",
-              color: "from-amber-500 to-orange-600",
-              bg: "bg-amber-50",
-            },
-            {
-              icon: AlertTriangle,
-              title: "여성암 위험 증가 (여아)",
-              desc: "여성 호르몬에 노출되는 기간이 길어져 유방암 등 호르몬 관련 암의 발생 위험이 상대적으로 높아질 수 있습니다.",
-              color: "from-red-600 to-red-700",
-              bg: "bg-red-50",
-            },
-          ].map((card, i) => (
+      <section id="why-treat" className="bg-slate-light py-20 md:py-32">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Odd Section: Left Text (Checklist) */}
             <motion.div
-              key={i}
-              variants={scaleIn}
-              className="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
             >
-              <div
-                className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${card.bg}`}
-              >
-                <card.icon className="h-7 w-7 text-red-500" />
+              <div className="mb-10 text-left">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-light/30">
+                  <AlertTriangle className="h-6 w-6 text-coral" />
+                </div>
+                <h2 className="mb-4 text-3xl font-bold text-deep-blue md:text-4xl">
+                  왜 조기에 치료해야 할까요?
+                </h2>
+                <p className="text-lg text-gray-500">
+                  이런 증상이 보인다면 빠른 진단이 필요합니다.
+                </p>
               </div>
-              <h3 className="mb-3 text-lg font-bold text-gray-900">
-                {card.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-gray-500">{card.desc}</p>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {[
+                  { icon: "🎀", label: "가슴 발달", gender: "여아" },
+                  { icon: "🧬", label: "고환 크기 증가", gender: "남아" },
+                  { icon: "👕", label: "머리 냄새 / 피지", gender: "공통" },
+                  { icon: "🌿", label: "음모 발달", gender: "공통" },
+                  { icon: "📏", label: "급격한 키 성장", gender: "공통" },
+                  { icon: "🌋", label: "여드름", gender: "공통" },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    variants={scaleIn}
+                    className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+                  >
+                    <span className="text-2xl">{item.icon}</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-gray-800 text-sm">{item.label}</span>
+                      <span className="text-xs text-coral font-medium">{item.gender}</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              <p className="mt-6 text-sm text-coral font-semibold">
+                ⚠️ 여아는 &quot;가슴 발달&quot;, 남아는 &quot;고환 크기 증가&quot;가 가장 중요한 신호입니다.
+              </p>
             </motion.div>
-          ))}
-        </motion.div>
-      </Section>
+
+            {/* Right: Risk Factor Boxes */}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="flex flex-col gap-6"
+            >
+              {[
+                {
+                  icon: TrendingDown,
+                  title: "최종 성인키 손실",
+                  desc: "성장판 조기 폐쇄로 예상보다 5~10cm 작을 수 있습니다.",
+                  color: "bg-red-50 text-red-500"
+                },
+                {
+                  icon: Users,
+                  title: "심리적 스트레스",
+                  desc: "빠른 2차 성징으로 또래와 달라 사회적 어려움을 겪습니다.",
+                  color: "bg-amber-50 text-amber-500"
+                },
+                {
+                  icon: AlertTriangle,
+                  title: "여성암 위험 증가",
+                  desc: "여성 호르몬 노출 기간 증가로 관련 암 발병률이 상대적으로 높아집니다.",
+                  color: "bg-rose-50 text-rose-500"
+                },
+              ].map((card, i) => (
+                <motion.div
+                  key={i}
+                  variants={fadeInUp}
+                  className="group flex items-center gap-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
+                >
+                  <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${card.color}`}>
+                    <card.icon className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <h3 className="mb-1 text-lg font-bold text-gray-900">{card.title}</h3>
+                    <p className="text-sm leading-relaxed text-gray-500">{card.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* ═══════ Section 4: MRI / Ultrasound ═══════ */}
-      <Section id="imaging" bg="bg-white">
-        <SectionTitle
-          icon={ScanLine}
-          title="보이지 않는 원인까지 철저하게 확인합니다"
-          subtitle="드물지만 존재할 수 있는 기질적 원인을 배제하기 위한 필수 검사입니다."
-        />
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mx-auto max-w-3xl"
-        >
-          <motion.div
-            variants={scaleIn}
-            className="rounded-3xl border border-blue-100 bg-gradient-to-br from-sky-blue/40 to-blue-50 p-8 md:p-10"
-          >
-            <div className="grid gap-8 md:grid-cols-2">
-              <div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-deep-blue/10">
-                  <Brain className="h-6 w-6 text-deep-blue" />
-                </div>
+      <section id="imaging" className="bg-white py-20 md:py-32">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Even: Left Visual Cards */}
+            <motion.div
+              variants={scaleIn}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="order-last lg:order-first grid gap-6 sm:grid-cols-2"
+            >
+              <div className="rounded-3xl bg-blue-50/70 p-8 text-center transition-all hover:bg-blue-100/50">
+                <Brain className="mx-auto mb-4 h-12 w-12 text-deep-blue" />
                 <h3 className="mb-2 text-lg font-bold text-gray-900">뇌 MRI</h3>
-                <p className="text-sm leading-relaxed text-gray-600">
-                  시상하부나 뇌하수체 주변의 종양 여부를 확인합니다. 특히 6세
-                  미만에서 사춘기가 시작된 경우나 남아의 경우 반드시 시행합니다.
+                <p className="text-sm text-gray-600">시상하부 등 기질적 인자 확인</p>
+              </div>
+              <div className="rounded-3xl bg-sky-50/70 p-8 text-center sm:translate-y-6 transition-all hover:bg-sky-100/50">
+                <Baby className="mx-auto mb-4 h-12 w-12 text-deep-blue" />
+                <h3 className="mb-2 text-lg font-bold text-gray-900">골반 초음파</h3>
+                <p className="text-sm text-gray-600">자궁 및 난소 성숙도 객관적 평가</p>
+              </div>
+            </motion.div>
+
+            {/* Right Text */}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <div className="mb-6 text-left">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-light/30">
+                  <ScanLine className="h-6 w-6 text-coral" />
+                </div>
+                <h2 className="mb-4 text-3xl font-bold text-deep-blue md:text-4xl">
+                  보이지 않는 원인까지 철저하게
+                </h2>
+                <p className="text-lg leading-relaxed text-gray-500">
+                  드물지만 뇌하수체 종양이나 난소/부신 병변 등 기질적 원인이 있을 수 있습니다. 아이에게 꼭 필요한 맞춤형 진단과 치료 계획을 위해 안전하게 검사를 진행합니다.
                 </p>
               </div>
-              <div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-deep-blue/10">
-                  <Baby className="h-6 w-6 text-deep-blue" />
+              <div className="inline-flex rounded-xl bg-gray-50 px-5 py-3 text-sm font-medium text-gray-700">
+                🛡️ 6세 미만 사춘기, 남아 성조숙증은 필수 검사 대상입니다.
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ Section 5: Treatment Duration ═══════ */}
+      <section id="duration" className="bg-slate-light py-20 md:py-32">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Odd: Left Text */}
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <div className="mb-8">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-light/30">
+                  <Timer className="h-6 w-6 text-coral" />
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-gray-900">
-                  복부 / 골반 초음파
-                </h3>
-                <p className="text-sm leading-relaxed text-gray-600">
-                  난소나 부신의 종양 여부를 확인합니다. 자궁과 난소의 크기 변화도
-                  함께 평가하여 사춘기 진행 정도를 객관적으로 판단합니다.
+                <h2 className="mb-4 text-3xl font-bold text-deep-blue md:text-4xl">
+                  치료는 언제까지 하나요?
+                </h2>
+                <p className="text-lg leading-relaxed text-gray-500">
+                  또래와 비슷한 시기에 사춘기를 맞이하도록 돕는 것이 가장 큰 목표입니다. 개별적인 성장 속도와 예상 성인키를 종합하여 여아는 골연령 12세, 남아는 13세 전후에 중단하는 것이 일반적입니다.
                 </p>
               </div>
-            </div>
-            <div className="mt-6 rounded-xl bg-white/70 p-4">
-              <p className="text-center text-sm font-medium text-deep-blue">
-                🛡️ 이 검사들은 안전하며, 원인을 정확히 파악하여 최적의 치료
-                계획을 세우기 위한 중요한 과정입니다.
-              </p>
-            </div>
-          </motion.div>
-        </motion.div>
-      </Section>
+              <motion.p
+                variants={fadeInUp}
+                className="mt-4 text-sm text-gray-400"
+              >
+                ※ 정확한 치료 중단 시점은 전문의와 함께 성상태약속, 성장판 닫힘 정도를 기반으로 판단하게 됩니다.
+              </motion.p>
+            </motion.div>
 
-      {/* ═══════ Section 5: Treatment Duration (Timeline) ═══════ */}
-      <Section id="duration" bg="bg-slate-light">
-        <SectionTitle
-          icon={Timer}
-          title="언제까지 치료를 진행하나요?"
-          subtitle="또래와 비슷한 시기에 사춘기를 맞이하도록 돕는 것이 치료의 목표입니다."
-        />
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mx-auto max-w-4xl"
-        >
-          {/* Timeline */}
-          <motion.div variants={scaleIn} className="relative">
-            <div className="grid gap-8 md:grid-cols-2">
-              {/* Girl */}
-              <div className="rounded-2xl border border-pink-100 bg-white p-8 shadow-sm">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-100">
-                    <span className="text-2xl">👧</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">여자 아이</h3>
-                    <p className="text-sm text-pink-500">골연령 기준</p>
-                  </div>
+            {/* Right: Timeline Step Bar */}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="flex flex-col gap-8"
+            >
+              {/* Girl Step Bar */}
+              <motion.div variants={scaleIn} className="rounded-3xl border border-pink-100 bg-white p-6 shadow-xl shadow-pink-100/50">
+                <div className="mb-8 flex items-center justify-between">
+                  <span className="flex items-center gap-2 font-bold text-pink-600"><span className="text-2xl">👧</span> 여아 기준</span>
+                  <span className="rounded-full bg-pink-50 px-3 py-1 text-xs font-semibold text-rose-500">최적 효율 구간</span>
                 </div>
-                {/* Timeline bar */}
-                <div className="my-6">
-                  <div className="relative h-3 rounded-full bg-pink-100">
-                    <div className="absolute left-0 top-0 h-full w-3/4 rounded-full bg-gradient-to-r from-pink-400 to-rose-400" />
-                    <div className="absolute -top-1 right-1/4 h-5 w-5 rounded-full border-2 border-white bg-rose-500 shadow-lg" />
-                  </div>
-                  <div className="mt-3 flex justify-between text-xs text-gray-400">
-                    <span>치료 시작</span>
-                    <span className="font-bold text-rose-600">골연령 12세</span>
-                    <span>사춘기 진행</span>
-                  </div>
-                </div>
-                <div className="rounded-xl bg-pink-50 p-4">
-                  <p className="text-center text-sm font-semibold text-rose-700">
-                    골연령 12세 전후 치료 중단 시<br />
-                    <span className="text-base">최종 성인키 예후 가장 우수</span>
-                  </p>
-                </div>
-              </div>
+                {/* Horizontal Step Bar */}
+                <div className="relative flex w-full flex-col mt-4 mb-2">
+                  <div className="absolute left-0 top-3 -z-10 h-2 w-full rounded-full bg-gray-100"></div>
+                  <div className="absolute left-0 top-3 -z-10 h-2 w-1/2 rounded-full bg-gradient-to-r from-pink-300 to-pink-500"></div>
 
-              {/* Boy */}
-              <div className="rounded-2xl border border-blue-100 bg-white p-8 shadow-sm">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                    <span className="text-2xl">👦</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">남자 아이</h3>
-                    <p className="text-sm text-blue-500">골연령 기준</p>
-                  </div>
-                </div>
-                {/* Timeline bar */}
-                <div className="my-6">
-                  <div className="relative h-3 rounded-full bg-blue-100">
-                    <div className="absolute left-0 top-0 h-full w-3/4 rounded-full bg-gradient-to-r from-blue-400 to-blue-600" />
-                    <div className="absolute -top-1 right-1/4 h-5 w-5 rounded-full border-2 border-white bg-blue-600 shadow-lg" />
-                  </div>
-                  <div className="mt-3 flex justify-between text-xs text-gray-400">
-                    <span>치료 시작</span>
-                    <span className="font-bold text-blue-700">골연령 13세</span>
-                    <span>사춘기 진행</span>
+                  <div className="flex w-full justify-between items-start">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-4 w-4 rounded-full border-4 border-white bg-pink-300 shadow"></div>
+                      <span className="text-xs font-semibold text-gray-500">치료 시작</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 mt-[-6px]">
+                      <div className="h-6 w-6 rounded-full border-4 border-white bg-rose-500 shadow-lg"></div>
+                      <span className="text-sm font-bold text-rose-600 text-center leading-tight">골연령<br /><CountUp to={12} duration={2} />세</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-4 w-4 rounded-full border-4 border-white bg-gray-300 shadow"></div>
+                      <span className="text-xs font-semibold text-gray-400">자연 사춘기</span>
+                    </div>
                   </div>
                 </div>
-                <div className="rounded-xl bg-blue-50 p-4">
-                  <p className="text-center text-sm font-semibold text-blue-800">
-                    골연령 13세 전후 치료 중단 시<br />
-                    <span className="text-base">최종 성인키 예후 가장 우수</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+              </motion.div>
 
-          <motion.p
-            variants={fadeInUp}
-            className="mt-8 text-center text-sm text-gray-500"
-          >
-            ※ 치료 중단 시점은 아이의 성장 속도, 2차 성징 진행도, 예측 성인키
-            등을 종합적으로 고려하여 개별적으로 결정합니다.
-          </motion.p>
-        </motion.div>
-      </Section>
+              {/* Boy Step Bar */}
+              <motion.div variants={scaleIn} className="rounded-3xl border border-blue-100 bg-white p-6 shadow-xl shadow-blue-100/50">
+                <div className="mb-8 flex items-center justify-between">
+                  <span className="flex items-center gap-2 font-bold text-blue-600"><span className="text-2xl">👦</span> 남아 기준</span>
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-500">최적 효율 구간</span>
+                </div>
+                {/* Horizontal Step Bar */}
+                <div className="relative flex w-full flex-col mt-4 mb-2">
+                  <div className="absolute left-0 top-3 -z-10 h-2 w-full rounded-full bg-gray-100"></div>
+                  <div className="absolute left-0 top-3 -z-10 h-2 w-[60%] rounded-full bg-gradient-to-r from-blue-300 to-blue-500"></div>
+
+                  <div className="flex w-full justify-between items-start">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-4 w-4 rounded-full border-4 border-white bg-blue-300 shadow"></div>
+                      <span className="text-xs font-semibold text-gray-500">치료 시작</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 mt-[-6px] ml-4">
+                      <div className="h-6 w-6 rounded-full border-4 border-white bg-blue-600 shadow-lg"></div>
+                      <span className="text-sm font-bold text-blue-700 text-center leading-tight">골연령<br /><CountUp to={13} duration={2} />세</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-4 w-4 rounded-full border-4 border-white bg-gray-300 shadow"></div>
+                      <span className="text-xs font-semibold text-gray-400">자연 사춘기</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* ═══════ Section 6: Safety ═══════ */}
       <Section id="safety" bg="bg-white">
@@ -752,7 +689,7 @@ export default function Home() {
               <motion.div
                 key={i}
                 variants={scaleIn}
-                className="group relative rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group relative rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
               >
                 <span className="absolute -top-3 left-4 rounded-full bg-deep-blue px-3 py-1 text-xs font-bold text-white">
                   {item.step}

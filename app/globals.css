@@ -23,6 +23,11 @@
   --color-coral-light: #fef2f2;
   --color-mint: #d1fae5;
   --color-slate-light: #f8fafc;
+  --color-growth-blue: #2563eb;
+  --color-growth-blue-light: #60a5fa;
+  --color-growth-orange: #f97316;
+  --color-growth-orange-light: #fdba74;
+  --color-growth-bg: #f3f4f6;
   --font-pretendard: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 

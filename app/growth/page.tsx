@@ -42,21 +42,11 @@ const scaleIn = {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
 };
 
-/* ─────────────── Nav links ─────────────── */
-const navLinks = [
-    { href: "#definition", label: "저신장이란" },
-    { href: "#checklist", label: "체크리스트" },
-    { href: "#principle", label: "치료 원리" },
-    { href: "#safety", label: "안전성" },
-    { href: "#injection", label: "주사법" },
-    { href: "#process", label: "진료 과정" },
-    { href: "#faq", label: "FAQ" },
-];
 
 /* ─────────────── FAQ data ─────────────── */
 const faqData = [
     {
-        q: "부모 키가 작으면 무조건 유전인가요?",
+        q: "부모 키가 작으면 무조건 유전되나요?",
         a: "유전적 요인이 크지만, 영양 상태, 수면, 운동, 호르몬 분비 등 다양한 환경적 요인도 성장에 큰 영향을 미칩니다. 부모의 키가 작아도 적절한 관리를 통해 예상보다 더 클 수 있습니다.",
     },
     {
@@ -163,32 +153,7 @@ export default function GrowthPage() {
     return (
         <main className="min-h-screen bg-growth-bg font-pretendard">
             {/* ─── Sticky Nav ─── */}
-            <nav className="fixed top-0 z-50 w-full border-b border-gray-100/60 bg-white/80 backdrop-blur-lg">
-                <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-                    <div className="flex items-center gap-6">
-                        <a href="#" className="flex items-center gap-2 font-bold text-growth-blue">
-                            <TrendingUp className="h-6 w-6 text-growth-orange" />
-                            <span className="text-lg tracking-tight whitespace-nowrap">저신장 클리닉</span>
-                        </a>
-                        {/* Main GNB for Page switching */}
-                        <div className="hidden lg:flex items-center gap-2 border-l border-gray-200 pl-6">
-                            <a href="/" className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-deep-blue transition-colors">성조숙증 클리닉</a>
-                            <a href="/growth" className="px-3 py-1.5 text-sm font-bold text-growth-blue bg-growth-blue/10 rounded-full transition-colors">저신장 클리닉</a>
-                        </div>
-                    </div>
-                    <div className="hidden gap-1 xl:flex">
-                        {navLinks.map((l) => (
-                            <a
-                                key={l.href}
-                                href={l.href}
-                                className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-growth-blue/5 hover:text-growth-blue whitespace-nowrap"
-                            >
-                                {l.label}
-                            </a>
-                        ))}
-                    </div>
-                </div>
-            </nav>
+
 
             {/* ═══════ Section 1: Hero ═══════ */}
             <section
@@ -427,9 +392,9 @@ export default function GrowthPage() {
 
                         {[
                             { icon: Stethoscope, title: "문진 및 신체계측", step: "1" },
-                            { icon: TrendingUp, title: "표적키(MPH) 계산", step: "2" },
-                            { icon: Bone, title: "골연령(X-ray) 측정", step: "3" },
-                            { icon: Search, title: "정밀 검사 (혈액)", step: "4" },
+                            { icon: Bone, title: "골연령(X-ray) 측정", step: "2" },
+                            { icon: TrendingUp, title: "표적키(PAH) 계산", step: "3" },
+                            { icon: Search, title: "정밀 검사(혈액)", step: "4" },
                             { icon: ClipboardList, title: "맞춤형 치료 계획", step: "5" }
                         ].map((item, i) => (
                             <motion.div key={i} variants={scaleIn} className="relative z-10 text-center">

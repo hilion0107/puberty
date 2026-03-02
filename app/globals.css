@@ -1,4 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
 @import "tailwindcss";
+
+.font-nanum-pen {
+  font-family: 'Nanum Pen Script', cursive;
+}
 
 :root {
   --background: #ffffff;
@@ -28,6 +33,11 @@
   --color-growth-orange: #f97316;
   --color-growth-orange-light: #fdba74;
   --color-growth-bg: #f3f4f6;
+  --color-dev-beige: #fdf8f5;
+  --color-dev-wood: #d1bfae;
+  --color-dev-wood-dark: #8b5e34;
+  --color-dev-green: #a3b18a;
+  --color-dev-blue: #a2d2ff;
   --font-pretendard: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
@@ -106,4 +116,23 @@ html {
 
 .animate-pulse-dot {
   animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-rainbow {
+  animation: rainbow 4s ease infinite;
+  background-size: 200% 200%;
 }

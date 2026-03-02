@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Phone, Navigation2, CalendarCheck } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HomePopup from "@/components/HomePopup";
 import PinnedNoticesCarousel from "@/components/PinnedNoticesCarousel";
 
@@ -135,6 +135,44 @@ const svgMap: Record<string, React.FC> = {
 export default function HospitalMainPage() {
   const [isRainbow, setIsRainbow] = useState(false);
   const [hoveredKeyword, setHoveredKeyword] = useState<string | null>(null);
+  const [autoHoverKeyword, setAutoHoverKeyword] = useState<string | null>(null);
+  const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
+
+  useEffect(() => {
+    // Initial load animations take around 5.8s to fully settle
+    const t = setTimeout(() => {
+      setIsInitialLoadDone(true);
+    }, 5800);
+    return () => clearTimeout(t);
+  }, []);
+
+  const labels = ["성장", "발달", "알레르기", "감염"];
+
+  useEffect(() => {
+    if (!isInitialLoadDone || isUserInteracting) {
+      setAutoHoverKeyword(null);
+      return;
+    }
+
+    let intervalId: NodeJS.Timeout;
+    const startTimeout = setTimeout(() => {
+      let cycleIndex = 0;
+      setAutoHoverKeyword(labels[cycleIndex]);
+
+      intervalId = setInterval(() => {
+        cycleIndex = (cycleIndex + 1) % labels.length;
+        setAutoHoverKeyword(labels[cycleIndex]);
+      }, 2500);
+    }, 2000); // wait 2s of inactivity
+
+    return () => {
+      clearTimeout(startTimeout);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isInitialLoadDone, isUserInteracting]);
+
+  const activeKeyword = hoveredKeyword || autoHoverKeyword;
 
   const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 40 },
@@ -163,21 +201,21 @@ export default function HospitalMainPage() {
       <section className="relative min-h-screen w-full overflow-hidden bg-[#FBFBFD] flex flex-col items-center justify-center">
 
         {/* Main Content */}
-        <div className="relative z-10 flex flex-col items-center text-center max-w-5xl">
+        <div className="relative z-10 flex flex-col items-center text-center w-full max-w-5xl px-4">
 
           {/* Logo + SVG Illustration area */}
           <div className="relative w-72 h-52 md:w-[416px] md:h-[292px] mb-8">
             <AnimatePresence mode="wait">
-              {hoveredKeyword ? (
+              {activeKeyword ? (
                 <motion.div
-                  key={hoveredKeyword}
+                  key={activeKeyword}
                   initial={{ opacity: 0, scale: 0.7 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.7 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute inset-0 flex items-center justify-center"
                 >
-                  {svgMap[hoveredKeyword] && (() => { const SvgComp = svgMap[hoveredKeyword]; return <SvgComp />; })()}
+                  {svgMap[activeKeyword] && (() => { const SvgComp = svgMap[activeKeyword]; return <SvgComp />; })()}
                 </motion.div>
               ) : (
                 <motion.div
@@ -365,7 +403,7 @@ export default function HospitalMainPage() {
           {/* Clinic Keyword Pills */}
           <div className="w-full relative">
             <motion.div
-              className="flex flex-nowrap md:flex-wrap justify-center md:justify-center gap-3 md:gap-5 px-4 md:px-0 overflow-x-auto no-scrollbar pt-2 pb-6 md:pb-2"
+              className="flex flex-wrap justify-center gap-3 md:gap-5 pt-2 pb-8 md:pb-4"
               initial="hidden"
               animate="visible"
               variants={{
@@ -373,31 +411,49 @@ export default function HospitalMainPage() {
                 visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.8 } }
               }}
             >
-              {clinicKeywords.map((kw, i) => (
-                <motion.div
-                  key={kw.label}
-                  className="shrink-0 snap-center px-6 py-3 md:px-11 md:py-5 rounded-full font-bold text-base md:text-xl text-white shadow-lg cursor-pointer select-none"
-                  style={{
-                    backgroundColor: kw.color,
-                    boxShadow: `0 8px 24px -4px ${kw.color}44`,
-                  }}
-                  variants={{
-                    hidden: { opacity: 0, y: 24, scale: 0.9 },
-                    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
-                  }}
-                  whileHover={{ scale: 1.08, y: -4, boxShadow: `0 14px 32px -4px ${kw.color}66`, transition: { duration: 0.25 } }}
-                  whileTap={{ scale: 0.95 }}
-                  onHoverStart={() => setHoveredKeyword(kw.label)}
-                  onHoverEnd={() => setHoveredKeyword(null)}
-                  onClick={(e) => {
-                    // 터치 이벤트 발생 시점 충돌 방지
-                    e.preventDefault();
-                    setHoveredKeyword(kw.label);
-                  }}
-                >
-                  {kw.label}
-                </motion.div>
-              ))}
+              {clinicKeywords.map((kw, i) => {
+                const isActive = activeKeyword === kw.label;
+                return (
+                  <motion.div
+                    key={kw.label}
+                    className="shrink-0 snap-center px-6 py-3 md:px-11 md:py-5 rounded-full font-bold text-base md:text-xl text-white shadow-lg cursor-pointer select-none"
+                    style={{
+                      backgroundColor: kw.color,
+                    }}
+                    variants={{
+                      hidden: { opacity: 0, y: 24, scale: 0.9, boxShadow: `0 8px 24px -4px ${kw.color}44` },
+                      visible: { opacity: 1, y: 0, scale: 1, boxShadow: `0 8px 24px -4px ${kw.color}44`, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+                    }}
+                    animate={
+                      isInitialLoadDone
+                        ? {
+                          y: isActive ? -6 : 0,
+                          scale: isActive ? 1.08 : 1,
+                          boxShadow: isActive ? `0 14px 32px -4px ${kw.color}88` : `0 8px 24px -4px ${kw.color}44`,
+                          transition: { duration: 0.3 }
+                        }
+                        : "visible"
+                    }
+                    whileHover={!isInitialLoadDone ? { scale: 1.08, y: -4, boxShadow: `0 14px 32px -4px ${kw.color}66`, transition: { duration: 0.25 } } : undefined}
+                    whileTap={{ scale: 0.95 }}
+                    onHoverStart={() => {
+                      setIsUserInteracting(true);
+                      setHoveredKeyword(kw.label);
+                    }}
+                    onHoverEnd={() => {
+                      setIsUserInteracting(false);
+                      setHoveredKeyword(null);
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsUserInteracting(true);
+                      setHoveredKeyword(kw.label);
+                    }}
+                  >
+                    {kw.label}
+                  </motion.div>
+                );
+              })}
             </motion.div>
           </div>
 

@@ -10,10 +10,10 @@ export async function GET() {
     }
 
     try {
-        const db = getDb();
-        const admins = db
-            .prepare("SELECT id, username, created_at FROM admins ORDER BY created_at ASC")
-            .all();
+        const db = await getDb();
+        const { rows: admins } = await db.query(
+            "SELECT id, username, created_at FROM admins ORDER BY created_at ASC"
+        );
         return NextResponse.json({ admins });
     } catch (error) {
         console.error("Users GET error:", error);
@@ -39,14 +39,20 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "비밀번호는 4자 이상이어야 합니다." }, { status: 400 });
         }
 
-        const db = getDb();
-        const existing = db.prepare("SELECT id FROM admins WHERE username = ?").get(username);
-        if (existing) {
+        const db = await getDb();
+        const existingResult = await db.query(
+            "SELECT id FROM admins WHERE username = $1",
+            [username]
+        );
+        if (existingResult.rows.length > 0) {
             return NextResponse.json({ error: "이미 존재하는 아이디입니다." }, { status: 409 });
         }
 
         const passwordHash = hashPassword(password);
-        db.prepare("INSERT INTO admins (username, password_hash) VALUES (?, ?)").run(username, passwordHash);
+        await db.query(
+            "INSERT INTO admins (username, password_hash) VALUES ($1, $2)",
+            [username, passwordHash]
+        );
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -70,14 +76,15 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: "삭제할 관리자 ID가 필요합니다." }, { status: 400 });
         }
 
-        const db = getDb();
-        const countResult = db.prepare("SELECT COUNT(*) as count FROM admins").get() as { count: number };
+        const db = await getDb();
+        const countRes = await db.query("SELECT COUNT(*) as count FROM admins");
+        const count = parseInt(countRes.rows[0].count, 10);
 
-        if (countResult.count <= 1) {
+        if (count <= 1) {
             return NextResponse.json({ error: "최소 1명의 관리자 계정이 필요합니다. 마지막 계정은 삭제할 수 없습니다." }, { status: 400 });
         }
 
-        db.prepare("DELETE FROM admins WHERE id = ?").run(id);
+        await db.query("DELETE FROM admins WHERE id = $1", [id]);
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -13,10 +13,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const db = getDb();
-        const admin = db
-            .prepare("SELECT * FROM admins WHERE username = ?")
-            .get(username) as { id: number; username: string; password_hash: string } | undefined;
+        const db = await getDb();
+        const result = await db.query(
+            "SELECT * FROM admins WHERE username = $1",
+            [username]
+        );
+        const admin = result.rows[0] as { id: number; username: string; password_hash: string } | undefined;
 
         if (!admin || !comparePassword(password, admin.password_hash)) {
             return NextResponse.json(

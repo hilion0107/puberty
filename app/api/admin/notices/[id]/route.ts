@@ -11,10 +11,9 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
-        const db = getDb();
-        const notice = db
-            .prepare("SELECT * FROM notices WHERE id = ?")
-            .get(id);
+        const db = await getDb();
+        const { rows } = await db.query("SELECT * FROM notices WHERE id = $1", [id]);
+        const notice = rows[0];
 
         if (!notice) {
             return NextResponse.json({ error: "공지사항을 찾을 수 없습니다." }, { status: 404 });
@@ -65,21 +64,24 @@ export async function PUT(
                 imagePath = `/uploads/${filename}`;
             }
 
-            db.prepare(
-                "UPDATE notices SET title = ?, title_html = ?, content = ?, content_html = ?, image_path = ?, link_url = ?, is_pinned = ?, updated_at = datetime('now') WHERE id = ?"
-            ).run(title, titleHtml, content, contentHtml, imagePath, linkUrl, isPinned, id);
+            const db = await getDb();
+            await db.query(
+                "UPDATE notices SET title = $1, title_html = $2, content = $3, content_html = $4, image_path = $5, link_url = $6, is_pinned = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8",
+                [title, titleHtml, content, contentHtml, imagePath, linkUrl, isPinned, id]
+            );
         } else {
             const body = await request.json();
+            const db = await getDb();
 
             if (body.is_pinned !== undefined) {
                 // Toggle pin only
-                db.prepare("UPDATE notices SET is_pinned = ?, updated_at = datetime('now') WHERE id = ?")
-                    .run(body.is_pinned ? 1 : 0, id);
+                await db.query("UPDATE notices SET is_pinned = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2", [body.is_pinned ? 1 : 0, id]);
             } else {
                 const { title, content, content_html, title_html, link_url, image_path } = body;
-                db.prepare(
-                    "UPDATE notices SET title = ?, title_html = COALESCE(?, title_html), content = ?, content_html = COALESCE(?, content_html), image_path = COALESCE(?, image_path), link_url = COALESCE(?, link_url), updated_at = datetime('now') WHERE id = ?"
-                ).run(title, title_html || null, content, content_html || null, image_path || null, link_url || null, id);
+                await db.query(
+                    "UPDATE notices SET title = $1, title_html = COALESCE($2, title_html), content = $3, content_html = COALESCE($4, content_html), image_path = COALESCE($5, image_path), link_url = COALESCE($6, link_url), updated_at = CURRENT_TIMESTAMP WHERE id = $7",
+                    [title, title_html || null, content, content_html || null, image_path || null, link_url || null, id]
+                );
             }
         }
 
@@ -102,8 +104,8 @@ export async function DELETE(
 
     try {
         const { id } = await params;
-        const db = getDb();
-        db.prepare("DELETE FROM notices WHERE id = ?").run(id);
+        const db = await getDb();
+        await db.query("DELETE FROM notices WHERE id = $1", [id]);
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -16,14 +16,21 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
         }
 
-        const db = getDb();
-        const stmt = db.prepare("UPDATE notices SET sort_order = ? WHERE id = ?");
-        const transaction = db.transaction(() => {
-            orderedIds.forEach((id: number, index: number) => {
-                stmt.run(index, id);
-            });
-        });
-        transaction();
+        const db = await getDb();
+        const client = await db.connect();
+        try {
+            await client.query('BEGIN');
+            for (let i = 0; i < orderedIds.length; i++) {
+                const id = orderedIds[i];
+                await client.query("UPDATE notices SET sort_order = $1 WHERE id = $2", [i, id]);
+            }
+            await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -10,11 +10,11 @@ export async function GET(request: NextRequest) {
         const month = parseInt(searchParams.get("month") || "0");
         const all = searchParams.get("all") === "true";
 
-        const db = getDb();
+        const db = await getDb();
 
         if (all) {
             // Return all schedules
-            const schedules = db.prepare("SELECT * FROM schedule ORDER BY year DESC, month DESC").all() as { id: number; year: number; month: number; data_json: string; updated_at: string }[];
+            const { rows: schedules } = await db.query("SELECT * FROM schedule ORDER BY year DESC, month DESC");
             return NextResponse.json({
                 data: schedules.map((s) => ({
                     ...JSON.parse(s.data_json),
@@ -23,9 +23,11 @@ export async function GET(request: NextRequest) {
             });
         } else if (year && month) {
             // Specific month
-            const schedule = db
-                .prepare("SELECT * FROM schedule WHERE year = ? AND month = ?")
-                .get(year, month) as { id: number; year: number; month: number; data_json: string; updated_at: string } | undefined;
+            const { rows } = await db.query(
+                "SELECT * FROM schedule WHERE year = $1 AND month = $2",
+                [year, month]
+            );
+            const schedule = rows[0] as { id: number; year: number; month: number; data_json: string; updated_at: string } | undefined;
 
             if (!schedule) {
                 return NextResponse.json({ data: null });
@@ -37,9 +39,8 @@ export async function GET(request: NextRequest) {
             });
         } else {
             // Latest schedule
-            const schedule = db
-                .prepare("SELECT * FROM schedule ORDER BY year DESC, month DESC LIMIT 1")
-                .get() as { id: number; year: number; month: number; data_json: string; updated_at: string } | undefined;
+            const { rows } = await db.query("SELECT * FROM schedule ORDER BY year DESC, month DESC LIMIT 1");
+            const schedule = rows[0] as { id: number; year: number; month: number; data_json: string; updated_at: string } | undefined;
 
             if (!schedule) {
                 return NextResponse.json({ data: null });
@@ -72,19 +73,25 @@ export async function POST(request: NextRequest) {
         }
 
         const dataJson = JSON.stringify({ year, month, days, doctors, footerLines, businessHours });
-        const db = getDb();
+        const db = await getDb();
 
         // Upsert
-        const existing = db
-            .prepare("SELECT id FROM schedule WHERE year = ? AND month = ?")
-            .get(year, month);
+        const { rows: existingRows } = await db.query(
+            "SELECT id FROM schedule WHERE year = $1 AND month = $2",
+            [year, month]
+        );
+        const existing = existingRows[0];
 
         if (existing) {
-            db.prepare("UPDATE schedule SET data_json = ?, updated_at = datetime('now') WHERE year = ? AND month = ?")
-                .run(dataJson, year, month);
+            await db.query(
+                "UPDATE schedule SET data_json = $1, updated_at = CURRENT_TIMESTAMP WHERE year = $2 AND month = $3",
+                [dataJson, year, month]
+            );
         } else {
-            db.prepare("INSERT INTO schedule (year, month, data_json) VALUES (?, ?, ?)")
-                .run(year, month, dataJson);
+            await db.query(
+                "INSERT INTO schedule (year, month, data_json) VALUES ($1, $2, $3)",
+                [year, month, dataJson]
+            );
         }
 
         return NextResponse.json({ success: true });
@@ -110,8 +117,8 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: "년/월을 지정해주세요." }, { status: 400 });
         }
 
-        const db = getDb();
-        db.prepare("DELETE FROM schedule WHERE year = ? AND month = ?").run(year, month);
+        const db = await getDb();
+        await db.query("DELETE FROM schedule WHERE year = $1 AND month = $2", [year, month]);
 
         return NextResponse.json({ success: true });
     } catch (error) {

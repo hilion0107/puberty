@@ -19,14 +19,12 @@ interface PopupRow {
 // GET: Get all active popups (public) or all popups (admin)
 export async function GET(request: NextRequest) {
     try {
-        const db = getDb();
+        const db = await getDb();
         const showAll = request.nextUrl.searchParams.get("all") === "true";
 
         if (showAll) {
             // Admin: return all popups
-            const popups = db
-                .prepare("SELECT * FROM popup ORDER BY created_at DESC")
-                .all() as PopupRow[];
+            const { rows: popups } = await db.query("SELECT * FROM popup ORDER BY created_at DESC");
 
             return NextResponse.json({
                 popups: popups.map((p) => ({
@@ -43,15 +41,13 @@ export async function GET(request: NextRequest) {
         }
 
         // Public: return only active, non-expired popups
-        const popups = db
-            .prepare("SELECT * FROM popup WHERE is_active = 1 ORDER BY created_at DESC")
-            .all() as PopupRow[];
+        const { rows: popups } = await db.query("SELECT * FROM popup WHERE is_active = 1 ORDER BY created_at DESC");
 
         const activePopups = popups.filter((popup) => {
             const createdDate = new Date(popup.created_at);
             const expiryDate = new Date(createdDate.getTime() + popup.duration_days * 24 * 60 * 60 * 1000);
             if (new Date() > expiryDate) {
-                db.prepare("UPDATE popup SET is_active = 0 WHERE id = ?").run(popup.id);
+                db.query("UPDATE popup SET is_active = 0 WHERE id = $1", [popup.id]).catch(console.error);
                 return false;
             }
             return true;
@@ -116,25 +112,28 @@ export async function POST(request: NextRequest) {
             imagePath = `/uploads/${filename}`;
         }
 
-        const db = getDb();
+        const db = await getDb();
 
         if (editId) {
             // Update existing popup
-            db.prepare(
-                "UPDATE popup SET title = ?, image_path = ?, size = ?, position = ?, duration_days = ?, is_active = ?, updated_at = datetime('now') WHERE id = ?"
-            ).run(title, imagePath, size, position, durationDays, isActive, editId);
+            await db.query(
+                "UPDATE popup SET title = $1, image_path = $2, size = $3, position = $4, duration_days = $5, is_active = $6, updated_at = CURRENT_TIMESTAMP WHERE id = $7",
+                [title, imagePath, size, position, durationDays, isActive, editId]
+            );
         } else {
             // Insert new popup
-            db.prepare(
-                "INSERT INTO popup (title, image_path, size, position, duration_days, is_active) VALUES (?, ?, ?, ?, ?, ?)"
-            ).run(title, imagePath, size, position, durationDays, isActive);
+            await db.query(
+                "INSERT INTO popup (title, image_path, size, position, duration_days, is_active) VALUES ($1, $2, $3, $4, $5, $6)",
+                [title, imagePath, size, position, durationDays, isActive]
+            );
         }
 
         // Add to notices if requested
         if (addToNotice && imagePath && title) {
-            db.prepare(
-                "INSERT INTO notices (title, content, content_html, image_path, author) VALUES (?, ?, ?, ?, ?)"
-            ).run(title, title, `<p>${title}</p>`, imagePath, user.username);
+            await db.query(
+                "INSERT INTO notices (title, content, content_html, image_path, author) VALUES ($1, $2, $3, $4, $5)",
+                [title, title, `<p>${title}</p>`, imagePath, user.username]
+            );
         }
 
         return NextResponse.json({ success: true });
@@ -153,8 +152,8 @@ export async function DELETE(request: NextRequest) {
 
     try {
         const { id } = await request.json();
-        const db = getDb();
-        db.prepare("DELETE FROM popup WHERE id = ?").run(id);
+        const db = await getDb();
+        await db.query("DELETE FROM popup WHERE id = $1", [id]);
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Popup DELETE error:", error);

@@ -5,8 +5,9 @@ import { getAuthUser } from "@/lib/auth";
 // GET: Get items_per_page setting
 export async function GET() {
     try {
-        const db = getDb();
-        const row = db.prepare("SELECT value FROM notice_settings WHERE key = 'items_per_page'").get() as { value: string } | undefined;
+        const db = await getDb();
+        const { rows } = await db.query("SELECT value FROM notice_settings WHERE key = 'items_per_page'");
+        const row = rows[0] as { value: string } | undefined;
         return NextResponse.json({ itemsPerPage: row ? parseInt(row.value) : 7 });
     } catch (error) {
         console.error("Settings GET error:", error);
@@ -25,10 +26,11 @@ export async function POST(request: NextRequest) {
         const { itemsPerPage } = await request.json();
         const value = Math.max(3, Math.min(10, parseInt(itemsPerPage) || 7));
 
-        const db = getDb();
-        db.prepare(
-            "INSERT OR REPLACE INTO notice_settings (key, value) VALUES ('items_per_page', ?)"
-        ).run(String(value));
+        const db = await getDb();
+        await db.query(
+            "INSERT INTO notice_settings (key, value) VALUES ('items_per_page', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+            [String(value)]
+        );
 
         return NextResponse.json({ success: true, itemsPerPage: value });
     } catch (error) {

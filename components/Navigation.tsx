@@ -73,12 +73,20 @@ const navData = [
 export default function Navigation() {
     const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
     const pathname = usePathname();
 
     // 메뉴 이동 시 모바일 메뉴 자동 닫기
     useEffect(() => {
         setIsMobileMenuOpen(false);
+        setExpandedMenus([]);
     }, [pathname]);
+
+    const toggleMobileMenu = (id: string) => {
+        setExpandedMenus(prev =>
+            prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
+        );
+    };
 
     const containerVariants = {
         hidden: { opacity: 0, y: 15 },
@@ -220,61 +228,116 @@ export default function Navigation() {
                 </div>
             </div>
 
-            {/* Mobile Push/Dropdown Menu */}
+            {/* Mobile Drawer Overlay */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="md:hidden overflow-hidden bg-white border-b border-gray-100/60 shadow-lg"
-                    >
-                        <div className="flex flex-col px-4 py-4 max-h-[70vh] overflow-y-auto">
-                            {navData.map((menu) => (
-                                <div key={menu.id} className="border-b border-gray-50 last:border-0 py-2">
-                                    <Link
-                                        href={menu.href}
-                                        className="block py-2 text-base font-bold text-gray-800"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                        {menu.title}
-                                    </Link>
-                                    {menu.subMenus.length > 0 && (
-                                        <div className="pl-4 pb-2 flex flex-col gap-2 mt-1">
-                                            {menu.subMenus.map((sub) => (
-                                                <Link
-                                                    key={sub.label}
-                                                    href={sub.href}
-                                                    className="text-sm font-medium text-gray-500 hover:text-deep-blue"
-                                                    onClick={() => setIsMobileMenuOpen(false)}
+                    <div className="md:hidden fixed inset-0 z-[100] flex h-[100dvh] w-full">
+                        {/* Background Overlay (Right 40%) */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="absolute inset-0 bg-black/50"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        />
+
+                        {/* Drawer (Left 40%) */}
+                        <motion.div
+                            initial={{ x: "-100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "-100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="relative z-10 w-[40%] min-w-[40%] max-w-[40%] h-full bg-white shadow-2xl flex flex-col overflow-hidden flex-none"
+                        >
+                            {/* Drawer Header */}
+                            <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-gray-100 min-h-[60px]">
+                                <span className="font-bold text-gray-900 tracking-tight">메뉴</span>
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="p-1.5 -mr-1.5 text-gray-500 hover:text-deep-blue bg-gray-50 rounded-full"
+                                    aria-label="메뉴 닫기"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Drawer Body (Menus) */}
+                            <div className="flex-1 overflow-y-auto w-full py-2">
+                                {navData.map((menu) => (
+                                    <div key={menu.id} className="w-full">
+                                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50/50">
+                                            <Link
+                                                href={menu.href}
+                                                className="text-[14px] font-bold text-gray-800 whitespace-normal break-words leading-tight flex-1 pr-2"
+                                                onClick={() => {
+                                                    if (menu.subMenus.length === 0) setIsMobileMenuOpen(false);
+                                                }}
+                                            >
+                                                {menu.title}
+                                            </Link>
+
+                                            {menu.subMenus.length > 0 && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        toggleMobileMenu(menu.id);
+                                                    }}
+                                                    className="p-1.5 text-gray-400 bg-gray-50 rounded-full active:bg-gray-100 transition-colors"
                                                 >
-                                                    - {sub.label}
-                                                </Link>
-                                            ))}
+                                                    <ChevronDown
+                                                        className={`w-4 h-4 transition-transform duration-300 ${expandedMenus.includes(menu.id) ? "rotate-180" : ""}`}
+                                                    />
+                                                </button>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                            ))}
-                            {/* Mobile CTA */}
-                            <div className="mt-6 flex flex-col gap-3 pb-4">
+
+                                        <AnimatePresence>
+                                            {menu.subMenus.length > 0 && expandedMenus.includes(menu.id) && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    className="overflow-hidden bg-gray-50/50"
+                                                >
+                                                    <div className="flex flex-col px-4 py-1.5 space-y-1">
+                                                        {menu.subMenus.map((sub) => (
+                                                            <Link
+                                                                key={sub.label}
+                                                                href={sub.href}
+                                                                className="py-2.5 pl-2 text-[14px] font-medium text-gray-600 hover:text-deep-blue"
+                                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                            >
+                                                                {sub.label}
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Drawer Footer (Admin & Schedule) */}
+                            <div className="mt-auto border-t border-gray-100 p-3 flex flex-col gap-2 shrink-0 bg-white shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
                                 <Link
                                     href="/clinic#schedule"
-                                    className="flex items-center justify-center gap-2 rounded-xl bg-deep-blue px-4 py-3 text-sm font-bold text-white shadow-sm"
+                                    className="flex items-center justify-center gap-1.5 rounded-lg bg-deep-blue px-2 py-2.5 text-[12px] font-bold text-white shadow-sm break-keep text-center"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                    <Calendar className="h-4 w-4" />
-                                    진료시간표 보기
+                                    <Calendar className="h-3.5 w-3.5 shrink-0" />
+                                    <span>진료시간표</span>
                                 </Link>
                                 <Link
                                     href="/admin"
-                                    className="text-center text-xs font-medium text-gray-400 py-2"
+                                    className="text-center text-[12px] font-medium text-gray-400 py-2 bg-gray-50 rounded-lg"
                                 >
-                                    관리자 로그인
+                                    관리자
                                 </Link>
                             </div>
-                        </div>
-                    </motion.div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
         </header>

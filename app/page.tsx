@@ -160,12 +160,7 @@ export default function HospitalMainPage() {
     <main className="min-h-screen bg-[#FBFBFD] font-pretendard selection:bg-deep-blue selection:text-white">
       <HomePopup />
       {/* ═══════ Section 1: Modern Minimal Hero ═══════ */}
-      <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-[#FBFBFD] via-[#F0F4FF] to-[#FBFBFD] flex flex-col items-center justify-center px-6">
-
-        {/* Soft decorative gradient orbs */}
-        <div className="absolute top-[10%] left-[5%] w-72 h-72 md:w-[28rem] md:h-[28rem] rounded-full bg-blue-200/20 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[15%] right-[8%] w-64 h-64 md:w-96 md:h-96 rounded-full bg-purple-200/20 blur-3xl pointer-events-none" />
-        <div className="absolute top-[40%] right-[20%] w-48 h-48 md:w-72 md:h-72 rounded-full bg-amber-100/25 blur-3xl pointer-events-none" />
+      <section className="relative min-h-screen w-full overflow-hidden bg-[#FBFBFD] flex flex-col items-center justify-center">
 
         {/* Main Content */}
         <div className="relative z-10 flex flex-col items-center text-center max-w-5xl">
@@ -369,10 +364,8 @@ export default function HospitalMainPage() {
 
           {/* Clinic Keyword Pills */}
           <div className="w-full relative">
-            {/* 왼쪽 그래디언트 오버레이 (모바일 스크롤 힌트) */}
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#F0F4FF] md:hidden z-10 pointer-events-none" />
             <motion.div
-              className="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3 md:gap-5 px-6 md:px-0 overflow-x-auto no-scrollbar snap-x snap-mandatory pt-2 pb-6 md:pb-2"
+              className="flex flex-nowrap md:flex-wrap justify-center md:justify-center gap-3 md:gap-5 px-4 md:px-0 overflow-x-auto no-scrollbar pt-2 pb-6 md:pb-2"
               initial="hidden"
               animate="visible"
               variants={{
@@ -406,8 +399,6 @@ export default function HospitalMainPage() {
                 </motion.div>
               ))}
             </motion.div>
-            {/* 오른쪽 그래디언트 오버레이 (모바일 스크롤 힌트) */}
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F0F4FF] md:hidden z-10 pointer-events-none" />
           </div>
 
         </div>
@@ -543,7 +534,7 @@ export default function HospitalMainPage() {
       <PinnedNoticesCarousel />
 
       {/* ═══════ Section 3: Location & Time (Redesigned) ═══════ */}
-      <section className="py-24 md:py-32 bg-white pb-32">
+      <section className="py-24 md:py-32 bg-white pb-16">
         <div className="mx-auto max-w-7xl px-6">
           <motion.div
             className="text-center mb-16"
@@ -659,7 +650,7 @@ export default function HospitalMainPage() {
                 <div className="flex items-start gap-2 mb-2">
                   <MapPin className="w-6 h-6 text-[#355DBB] shrink-0 mt-0.5" fill="#e6f0ff" />
                   <h4 className="text-xl md:text-[1.35rem] font-bold text-[#222222] leading-tight">
-                    대전 유성구 노은로 170 스타시티빌딩 6층 <span className="text-[#355DBB]">우리들소아청소년과</span>
+                    대전 유성구 노은로 170 스타시티빌딩 6층 <br className="md:hidden" /> <span className="text-[#355DBB]">우리들소아청소년과</span>
                   </h4>
                 </div>
                 <div className="flex items-center gap-2 text-gray-700 pl-8 font-medium">

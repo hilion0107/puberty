@@ -998,13 +998,10 @@ export default function ClinicPage() {
 
     return (
         <main className="min-h-screen bg-white font-pretendard">
-            {/* ───────── Spacer for fixed nav ───────── */}
-            <div className="h-20" />
-
             {/* ═══════ Section 1: 진료과목 ═══════ */}
             <section
                 id="departments"
-                className="relative pt-2 pb-10 lg:py-28 overflow-hidden"
+                className="relative pt-24 pb-10 lg:pt-36 lg:pb-28 overflow-hidden"
             >
                 {/* Soft BG */}
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white pointer-events-none" />

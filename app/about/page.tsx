@@ -427,11 +427,11 @@ export default function AboutPage() {
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
     return (
-        <main className="min-h-screen bg-white font-pretendard selection:bg-deep-blue selection:text-white pt-20">
+        <main className="min-h-screen bg-white font-pretendard selection:bg-deep-blue selection:text-white">
             {/* ═══════ Section 1: 인사말 (Greetings Hero) ═══════ */}
             <section
                 id="greeting"
-                className="relative min-h-[85vh] flex items-center overflow-hidden"
+                className="relative min-h-[85vh] flex items-center overflow-hidden pt-20 md:pt-28"
             >
                 {/* Decorative background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-emerald-50/30" />

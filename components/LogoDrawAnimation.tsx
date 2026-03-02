@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 /* ------------------------------------------------------------------
    SVG paths hand-traced from the hospital_logo.png:
@@ -17,7 +17,7 @@ const FILL_COLOR = "#1a2340";
 const MINT = "#4ecdc4";
 
 // Each segment is drawn one after another
-const drawVariant = (delay: number, duration = 1.0) => ({
+const drawVariant = (delay: number, duration = 1.0): Variants => ({
     hidden: { pathLength: 0, opacity: 0 },
     visible: {
         pathLength: 1,
@@ -29,7 +29,7 @@ const drawVariant = (delay: number, duration = 1.0) => ({
     },
 });
 
-const fillVariant = (delay: number) => ({
+const fillVariant = (delay: number): Variants => ({
     hidden: { opacity: 0, scale: 0 },
     visible: {
         opacity: 1,

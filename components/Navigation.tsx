@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Calendar } from "lucide-react";
+import { ChevronDown, Calendar, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -72,7 +72,13 @@ const navData = [
 
 export default function Navigation() {
     const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
+
+    // 메뉴 이동 시 모바일 메뉴 자동 닫기
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [pathname]);
 
     const containerVariants = {
         hidden: { opacity: 0, y: 15 },
@@ -98,20 +104,41 @@ export default function Navigation() {
 
     return (
         <header className="fixed top-0 z-50 w-full border-b border-gray-100/60 bg-white/70 backdrop-blur-md transition-colors font-pretendard">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+            <div className="mx-auto flex h-[60px] md:h-[72px] max-w-7xl items-center justify-between px-4 md:px-6 relative">
+
+                {/* Mobile Hamburger Button */}
+                <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="md:hidden p-2 -ml-2 text-gray-700 hover:text-deep-blue transition-colors focus:outline-none"
+                    aria-label="메뉴 열기"
+                >
+                    {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-1.5 font-bold text-gray-900 group">
+                <Link
+                    href="/"
+                    className="flex flex-row items-center gap-1.5 font-bold text-gray-900 group md:static absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0"
+                >
                     <img
                         src="/images/cloud_logo_clean.png"
                         alt="우리들소아청소년과 로고"
-                        className="w-10 h-10 object-contain transition-transform group-hover:scale-110"
+                        className="w-6 h-6 md:w-10 md:h-10 object-contain transition-transform group-hover:scale-110 shrink-0"
                         style={{ mixBlendMode: 'multiply' }}
                     />
-                    <span className="text-2xl tracking-tight whitespace-nowrap">우리들소아청소년과</span>
+                    <span className="text-base md:text-2xl tracking-tight whitespace-nowrap">우리들소아청소년과</span>
+                </Link>
+
+                {/* Mobile Schedule button (Right side) */}
+                <Link
+                    href="/clinic#schedule"
+                    className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 bg-deep-blue text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm"
+                >
+                    진료시간표
                 </Link>
 
                 {/* Desktop Main Menu */}
-                <nav className="hidden lg:flex items-center gap-8 relative" onMouseLeave={() => setHoveredMenu(null)}>
+                <nav className="hidden md:flex items-center gap-6 lg:gap-8 relative" onMouseLeave={() => setHoveredMenu(null)}>
                     {navData.map((menu) => {
                         const isActive = pathname === menu.href;
 
@@ -192,6 +219,64 @@ export default function Navigation() {
                     </Link>
                 </div>
             </div>
+
+            {/* Mobile Push/Dropdown Menu */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="md:hidden overflow-hidden bg-white border-b border-gray-100/60 shadow-lg"
+                    >
+                        <div className="flex flex-col px-4 py-4 max-h-[70vh] overflow-y-auto">
+                            {navData.map((menu) => (
+                                <div key={menu.id} className="border-b border-gray-50 last:border-0 py-2">
+                                    <Link
+                                        href={menu.href}
+                                        className="block py-2 text-base font-bold text-gray-800"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        {menu.title}
+                                    </Link>
+                                    {menu.subMenus.length > 0 && (
+                                        <div className="pl-4 pb-2 flex flex-col gap-2 mt-1">
+                                            {menu.subMenus.map((sub) => (
+                                                <Link
+                                                    key={sub.label}
+                                                    href={sub.href}
+                                                    className="text-sm font-medium text-gray-500 hover:text-deep-blue"
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                >
+                                                    - {sub.label}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            {/* Mobile CTA */}
+                            <div className="mt-6 flex flex-col gap-3 pb-4">
+                                <Link
+                                    href="/clinic#schedule"
+                                    className="flex items-center justify-center gap-2 rounded-xl bg-deep-blue px-4 py-3 text-sm font-bold text-white shadow-sm"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <Calendar className="h-4 w-4" />
+                                    진료시간표 보기
+                                </Link>
+                                <Link
+                                    href="/admin"
+                                    className="text-center text-xs font-medium text-gray-400 py-2"
+                                >
+                                    관리자 로그인
+                                </Link>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </header>
     );
 }

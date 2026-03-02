@@ -292,7 +292,7 @@ function Bubble({
                         : `0 4px 14px ${dept.color}30`,
                 }}
             >
-                <span className="text-white font-black text-sm md:text-base text-center leading-tight px-2 drop-shadow-md">
+                <span className="text-white font-black text-[18px] lg:text-base text-center leading-tight px-2 drop-shadow-md">
                     {dept.name}
                 </span>
             </div>
@@ -1004,36 +1004,37 @@ export default function ClinicPage() {
             {/* ═══════ Section 1: 진료과목 ═══════ */}
             <section
                 id="departments"
-                className="relative py-20 md:py-28 overflow-hidden"
+                className="relative pt-2 pb-10 lg:py-28 overflow-hidden"
             >
                 {/* Soft BG */}
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white pointer-events-none" />
 
-                <div className="relative max-w-7xl mx-auto px-6">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
                     {/* Section heading */}
                     <motion.div
                         variants={fadeInUp}
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true, amount: 0.3 }}
-                        className="text-center mb-16"
+                        className="text-center mb-6 lg:mb-16"
                     >
-                        <span className="inline-block text-sm font-bold tracking-widest text-deep-blue uppercase mb-3">
+                        <span className="inline-block text-xs lg:text-sm font-bold tracking-widest text-deep-blue uppercase mb-1 lg:mb-3">
                             Departments
                         </span>
-                        <h2 className="text-3xl md:text-5xl font-black text-gray-900">
+                        <h2 className="text-3xl lg:text-5xl font-black text-gray-900">
                             진료과목
                         </h2>
-                        <p className="mt-4 text-gray-500 max-w-lg mx-auto">
+                        {/* 완전히 숨김 (모바일) */}
+                        <p className="hidden lg:block mt-4 text-gray-500 max-w-lg mx-auto">
                             버튼을 터치해 각 진료과목의 상세 내용을 확인해 보세요
                         </p>
                     </motion.div>
 
                     {/* Bubble playground + Post-it */}
-                    <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-4">
-                        {/* Left: Bubbles */}
+                    <div className="flex flex-col lg:flex-row items-center lg:items-start gap-0 lg:gap-4 mt-0 border border-transparent">
+                        {/* Left: Bubbles - 모바일에서 왼쪽 위로 붙이고 스케일 75% 고정, 하단 여백 제거로 겹침 유도 */}
                         <motion.div
-                            className="relative w-full lg:w-[45%] max-w-[500px] aspect-square mx-auto lg:mx-0 lg:ml-8 mt-12"
+                            className="relative w-full lg:w-[45%] max-w-[500px] aspect-square lg:mx-0 lg:ml-8 mt-4 lg:mt-12 scale-[0.75] lg:scale-100 origin-top-left -ml-4 sm:ml-0 -mb-[140px] lg:mb-0"
                             variants={staggerContainer}
                             initial="hidden"
                             whileInView="visible"
@@ -1085,8 +1086,8 @@ export default function ClinicPage() {
                             ))}
                         </motion.div>
 
-                        {/* Right: Growth animation (idle) or Post-it detail (hovered) */}
-                        <div className="w-full lg:w-1/2 flex items-start justify-center pt-20 min-h-[400px]">
+                        {/* Right: Growth animation (idle) or Post-it detail (hovered) - 우측 하단 배치 */}
+                        <div className="w-full lg:w-1/2 flex items-start justify-end lg:justify-center pr-2 sm:pr-6 lg:pr-0 pt-0 lg:pt-20 min-h-[350px] lg:min-h-[400px] scale-[0.73] lg:scale-100 origin-top-right lg:origin-center translate-y-6 lg:translate-y-0">
                             <AnimatePresence mode="wait">
                                 {hoveredBubble !== null ? (
                                     <motion.div

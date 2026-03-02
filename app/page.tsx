@@ -214,7 +214,7 @@ export default function HospitalMainPage() {
           </div>
 
           {/* Clinic Name - Wooridul: puzzle-like gathering */}
-          <div className="text-5xl md:text-8xl font-black tracking-tight text-gray-900 mb-4 flex justify-center overflow-visible">
+          <div className="text-4xl md:text-8xl font-black tracking-tight text-gray-900 mb-2 md:mb-4 flex justify-center overflow-visible">
             {"Wooridul".split("").map((char, i) => {
               const flyFromPositions = [
                 { x: -500, y: -300, rotate: -120 },   // W
@@ -263,7 +263,7 @@ export default function HospitalMainPage() {
           </div>
 
           {/* PEDIATRIC CLINIC - puzzle-like gathering */}
-          <div className="text-xl md:text-3xl font-semibold tracking-[0.2em] uppercase text-gray-400 mb-12 flex justify-center gap-[0.2em] overflow-visible">
+          <div className="text-base md:text-3xl font-semibold tracking-[0.2em] uppercase text-gray-400 mb-8 md:mb-12 flex justify-center gap-[0.1em] md:gap-[0.2em] overflow-visible">
             {"PEDIATRIC".split("").map((char, i) => {
               const flyFromPositions = [
                 { x: 500, y: -400, rotate: 130 },     // P
@@ -359,7 +359,7 @@ export default function HospitalMainPage() {
 
           {/* Tagline */}
           <motion.p
-            className="text-lg md:text-2xl text-gray-500 font-medium leading-relaxed break-keep mb-16"
+            className="text-base md:text-2xl text-gray-500 font-medium leading-relaxed break-keep mb-8 md:mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
@@ -368,35 +368,47 @@ export default function HospitalMainPage() {
           </motion.p>
 
           {/* Clinic Keyword Pills */}
-          <motion.div
-            className="flex flex-wrap justify-center gap-4 md:gap-5"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.8 } }
-            }}
-          >
-            {clinicKeywords.map((kw, i) => (
-              <motion.div
-                key={kw.label}
-                className="px-8 py-4 md:px-11 md:py-5 rounded-full font-bold text-lg md:text-xl text-white shadow-lg cursor-pointer select-none"
-                style={{
-                  backgroundColor: kw.color,
-                  boxShadow: `0 8px 24px -4px ${kw.color}44`,
-                }}
-                variants={{
-                  hidden: { opacity: 0, y: 24, scale: 0.9 },
-                  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
-                }}
-                whileHover={{ scale: 1.08, y: -4, boxShadow: `0 14px 32px -4px ${kw.color}66`, transition: { duration: 0.25 } }}
-                onHoverStart={() => setHoveredKeyword(kw.label)}
-                onHoverEnd={() => setHoveredKeyword(null)}
-              >
-                {kw.label}
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="w-full relative">
+            {/* 왼쪽 그래디언트 오버레이 (모바일 스크롤 힌트) */}
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#F0F4FF] md:hidden z-10 pointer-events-none" />
+            <motion.div
+              className="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3 md:gap-5 px-6 md:px-0 overflow-x-auto no-scrollbar snap-x snap-mandatory pt-2 pb-6 md:pb-2"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.8 } }
+              }}
+            >
+              {clinicKeywords.map((kw, i) => (
+                <motion.div
+                  key={kw.label}
+                  className="shrink-0 snap-center px-6 py-3 md:px-11 md:py-5 rounded-full font-bold text-base md:text-xl text-white shadow-lg cursor-pointer select-none"
+                  style={{
+                    backgroundColor: kw.color,
+                    boxShadow: `0 8px 24px -4px ${kw.color}44`,
+                  }}
+                  variants={{
+                    hidden: { opacity: 0, y: 24, scale: 0.9 },
+                    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+                  }}
+                  whileHover={{ scale: 1.08, y: -4, boxShadow: `0 14px 32px -4px ${kw.color}66`, transition: { duration: 0.25 } }}
+                  whileTap={{ scale: 0.95 }}
+                  onHoverStart={() => setHoveredKeyword(kw.label)}
+                  onHoverEnd={() => setHoveredKeyword(null)}
+                  onClick={(e) => {
+                    // 터치 이벤트 발생 시점 충돌 방지
+                    e.preventDefault();
+                    setHoveredKeyword(kw.label);
+                  }}
+                >
+                  {kw.label}
+                </motion.div>
+              ))}
+            </motion.div>
+            {/* 오른쪽 그래디언트 오버레이 (모바일 스크롤 힌트) */}
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F0F4FF] md:hidden z-10 pointer-events-none" />
+          </div>
 
         </div>
 

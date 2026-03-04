@@ -131,10 +131,10 @@ export default function Navigation() {
                     <img
                         src="/images/cloud_logo_clean.png"
                         alt="우리들소아청소년과 로고"
-                        className="w-6 h-6 md:w-10 md:h-10 object-contain transition-transform group-hover:scale-110 shrink-0"
+                        className="w-6 h-6 md:w-10 md:h-10 object-contain transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(0,216,182,0.6)] shrink-0"
                         style={{ mixBlendMode: 'multiply' }}
                     />
-                    <span className="text-base md:text-2xl tracking-tight whitespace-nowrap">우리들소아청소년과</span>
+                    <span className="text-base md:text-2xl tracking-tight whitespace-nowrap transition-colors duration-300 group-hover:text-[#00d8b6]">우리들소아청소년과</span>
                 </Link>
 
                 {/* Mobile Schedule button (Right side) */}

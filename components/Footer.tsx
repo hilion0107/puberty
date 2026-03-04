@@ -9,15 +9,15 @@ export default function Footer() {
                 <div className="flex flex-col gap-3 w-full md:w-2/3">
                     {/* Logo (Hidden on mobile as requested) */}
                     <Link href="/" className="hidden md:inline-block w-fit">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                             <Image
                                 src="/images/cloud_logo_clean.png"
                                 alt="우리들소아청소년과의원 로고"
-                                width={48}
-                                height={28}
+                                width={32}
+                                height={19}
                                 className="object-contain"
                             />
-                            <span className="text-lg font-black text-gray-900 tracking-tight">
+                            <span className="text-xs font-black text-gray-900 tracking-tight">
                                 우리들소아청소년과의원
                             </span>
                         </div>

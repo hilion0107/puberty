@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HoverAccordionGallery({
     images,
@@ -12,62 +12,140 @@ export default function HoverAccordionGallery({
     images: string[];
     onImageClick: (index: number) => void;
 }) {
-    // Only show a limited number of images to make the accordion effective.
-    // Optimal number is usually 5-7. We'll slice the first 7.
-    const displayImages = images.slice(0, 7);
+    // 1. Determine items per page based on screen width
+    const [itemsPerPage, setItemsPerPage] = useState(7);
+    const [startIndex, setStartIndex] = useState(0);
 
-    // We keep track of which image index is hovered. null means none.
+    // Track which image index is hovered (relative to the full original array is fine, but we'll use local index for simplicity)
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) {
+                setItemsPerPage(4);
+            } else {
+                setItemsPerPage(7);
+            }
+        };
+
+        // Initial check
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Ensure we don't go out of bounds if screen size changes
+    useEffect(() => {
+        const maxStartIndex = Math.max(0, images.length - itemsPerPage);
+        if (startIndex > maxStartIndex) {
+            setStartIndex(maxStartIndex);
+        }
+    }, [itemsPerPage, images.length, startIndex]);
+
+    // 2. Pagination Logic
+    const handleNext = () => {
+        const maxStartIndex = Math.max(0, images.length - itemsPerPage);
+        setStartIndex((prev) => Math.min(prev + itemsPerPage, maxStartIndex));
+    };
+
+    const handlePrev = () => {
+        setStartIndex((prev) => Math.max(0, prev - itemsPerPage));
+    };
+
+    const displayImages = images.slice(startIndex, startIndex + itemsPerPage);
+    const showPrev = startIndex > 0;
+    const showNext = startIndex + itemsPerPage < images.length;
+
     return (
-        <div className="w-full h-[400px] md:h-[500px] flex gap-2 md:gap-4 overflow-hidden rounded-3xl">
-            {displayImages.map((src, index) => {
-                const isHovered = hoveredIndex === index;
-                // Default width is uniform. Hovered width expands significantly.
-                // We use flex-grow via Framer Motion's animate prop.
-                return (
-                    <motion.div
-                        key={index}
-                        onMouseEnter={() => setHoveredIndex(index)}
-                        onMouseLeave={() => setHoveredIndex(null)}
-                        onClick={() => onImageClick(index)}
-                        animate={{
-                            flex: isHovered ? 5 : 1, // Expand hovered item 5 times wider
-                        }}
-                        transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-                        className="relative h-full overflow-hidden rounded-2xl cursor-pointer group flex-shrink-0 min-w-[40px] md:min-w-[60px]"
+        <div className="relative w-full group/gallery">
+            <div className="w-full h-[400px] md:h-[500px] flex gap-2 md:gap-4 overflow-hidden rounded-3xl">
+                <AnimatePresence mode="popLayout">
+                    {displayImages.map((src, localIndex) => {
+                        const globalIndex = startIndex + localIndex;
+                        const isHovered = hoveredIndex === globalIndex;
+
+                        return (
+                            <motion.div
+                                key={`${src}-${globalIndex}`} // Unique key for AnimatePresence
+                                layout
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{
+                                    opacity: 1,
+                                    scale: 1,
+                                    flex: isHovered ? 5 : 1, // Expand hovered item
+                                }}
+                                exit={{ opacity: 0, scale: 0.8, flex: 0 }}
+                                transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+                                onMouseEnter={() => setHoveredIndex(globalIndex)}
+                                onMouseLeave={() => setHoveredIndex(null)}
+                                onClick={() => onImageClick(globalIndex)}
+                                className="relative h-full overflow-hidden rounded-2xl cursor-pointer group flex-shrink-0 min-w-[40px] md:min-w-[60px]"
+                            >
+                                <Image
+                                    src={src}
+                                    alt={`Gallery Image ${globalIndex + 1}`}
+                                    fill
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+
+                                {/* Dark Overlay */}
+                                <div
+                                    className={`absolute inset-0 bg-black/40 transition-opacity duration-500 ease-in-out ${isHovered ? 'opacity-0' : 'opacity-100'}`}
+                                />
+
+                                {/* Expand Icon */}
+                                <AnimatePresence>
+                                    {isHovered && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.5 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.5 }}
+                                            transition={{ duration: 0.2, delay: 0.1 }}
+                                            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                                        >
+                                            <div className="bg-black/30 backdrop-blur-sm w-12 h-12 rounded-full flex items-center justify-center">
+                                                <Maximize2 className="text-white w-5 h-5" />
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        );
+                    })}
+                </AnimatePresence>
+            </div>
+
+            {/* Pagination UI Overlay */}
+            <AnimatePresence>
+                {showPrev && (
+                    <motion.button
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        onClick={handlePrev}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl text-deep-blue hover:scale-110 transition-transform z-10 opacity-0 group-hover/gallery:opacity-100"
+                        aria-label="Previous images"
                     >
-                        <Image
-                            src={src}
-                            alt={`Gallery Image ${index + 1}`}
-                            fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
+                        <ChevronLeft className="w-6 h-6" />
+                    </motion.button>
+                )}
+            </AnimatePresence>
 
-                        {/* Dark Overlay that disappears on hover for a spotlight effect */}
-                        <div
-                            className={`absolute inset-0 bg-black/40 transition-opacity duration-500 ease-in-out ${isHovered ? 'opacity-0' : 'opacity-100'}`}
-                        />
-
-                        {/* Expand Icon visible only when hovered to indicate clickability */}
-                        <AnimatePresence>
-                            {isHovered && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.5 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.5 }}
-                                    transition={{ duration: 0.2, delay: 0.1 }}
-                                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                                >
-                                    <div className="bg-black/30 backdrop-blur-sm w-12 h-12 rounded-full flex items-center justify-center">
-                                        <Maximize2 className="text-white w-5 h-5" />
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </motion.div>
-                );
-            })}
+            <AnimatePresence>
+                {showNext && (
+                    <motion.button
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        onClick={handleNext}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl text-deep-blue hover:scale-110 transition-transform z-10 opacity-0 group-hover/gallery:opacity-100"
+                        aria-label="Next images"
+                    >
+                        <ChevronRight className="w-6 h-6" />
+                    </motion.button>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

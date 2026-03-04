@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
-import path from "path";
-import fs from "fs";
 
 interface PopupRow {
     id: number;
@@ -102,14 +100,10 @@ export async function POST(request: NextRequest) {
         let imagePath = (formData.get("existingImagePath") as string) || "";
 
         if (file && file.size > 0) {
-            const uploadsDir = path.join(process.cwd(), "public", "uploads");
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir, { recursive: true });
-            }
             const buffer = Buffer.from(await file.arrayBuffer());
-            const filename = `popup_${Date.now()}${path.extname(file.name)}`;
-            fs.writeFileSync(path.join(uploadsDir, filename), buffer);
-            imagePath = `/uploads/${filename}`;
+            const base64Data = buffer.toString("base64");
+            const mimeType = file.type || 'image/jpeg';
+            imagePath = `data:${mimeType};base64,${base64Data}`;
         }
 
         const db = await getDb();

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth";
 import { analyzeScheduleImage } from "@/lib/gemini";
-import path from "path";
-import fs from "fs";
 
 // POST: Upload image and analyze with Gemini OCR
 export async function POST(request: NextRequest) {
@@ -25,25 +23,18 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "년/월을 지정해주세요." }, { status: 400 });
         }
 
-        // Save uploaded image
-        const uploadsDir = path.join(process.cwd(), "public", "uploads");
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-
+        // Read the image buffer
         const buffer = Buffer.from(await file.arrayBuffer());
-        const ext = path.extname(file.name) || ".png";
-        const filename = `schedule_${year}_${month}_${Date.now()}${ext}`;
-        const filePath = path.join(uploadsDir, filename);
-        fs.writeFileSync(filePath, buffer);
+        const base64Image = buffer.toString("base64");
+        const mimeType = file.type || 'image/jpeg';
 
-        // Analyze with Gemini
-        const result = await analyzeScheduleImage(filePath, year, month);
+        // Analyze with Gemini directly using base64
+        const result = await analyzeScheduleImage(base64Image, mimeType, year, month);
 
         return NextResponse.json({
             success: true,
             data: result,
-            imagePath: `/uploads/${filename}`,
+            imagePath: `data:${mimeType};base64,${base64Image}`,
         });
     } catch (error) {
         console.error("Schedule OCR error:", error);

@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import fs from "fs";
 
 const API_KEY = process.env.GEMINI_API_KEY || "";
 
@@ -21,7 +20,8 @@ export interface OCRResult {
 }
 
 export async function analyzeScheduleImage(
-    imagePath: string,
+    base64Image: string,
+    mimeType: string,
     year: number,
     month: number
 ): Promise<OCRResult> {
@@ -31,11 +31,6 @@ export async function analyzeScheduleImage(
 
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-    // Read image file
-    const imageBuffer = fs.readFileSync(imagePath);
-    const base64Image = imageBuffer.toString("base64");
-    const mimeType = imagePath.endsWith(".png") ? "image/png" : "image/jpeg";
 
     const prompt = `이 이미지는 ${year}년 ${month}월의 병원 진료 시간표입니다.
 

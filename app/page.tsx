@@ -194,6 +194,36 @@ export default function HospitalMainPage() {
     { label: "감염", color: "#10B981" },
   ];
 
+  const clinics = [
+    {
+      id: "Clinic 01",
+      title: "성장 클리닉",
+      desc: "성조숙증 · 저신장 (성장호르몬) · 소아비만",
+      image: "/images/clinic_growth_new.png",
+      href: "/clinic#departments",
+      hoverGradient: "group-hover:from-deep-blue/90",
+      hoverTitleColor: "group-hover:text-blue-100",
+    },
+    {
+      id: "Clinic 02",
+      title: "아동발달 센터",
+      desc: "발달 평가 · 언어치료 · 감각통합치료",
+      image: "/images/dev_playroom_wooden_toys.png",
+      href: "/clinic#departments",
+      hoverGradient: "group-hover:from-coral/90",
+      hoverTitleColor: "group-hover:text-amber-100",
+    },
+    {
+      id: "Clinic 03",
+      title: "호흡기/알레르기",
+      desc: "숨쉬기 편안한 건강한 일상",
+      image: "/images/clinic_respiratory_new.png",
+      href: "/clinic#departments",
+      hoverGradient: "group-hover:from-sky-700/90",
+      hoverTitleColor: "group-hover:text-blue-100",
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-[#FBFBFD] font-pretendard selection:bg-deep-blue selection:text-white">
       <HomePopup />
@@ -489,75 +519,74 @@ export default function HospitalMainPage() {
             <p className="mt-6 text-xl text-gray-500 font-medium">우리아이의 바른 성장을 위한 세분화된 진료</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {/* Clinic 01 */}
-            <Link href="/clinic#departments" className="group relative w-full h-[400px] md:h-[480px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 block">
-              <Image
-                src="/images/clinic_growth_new.png"
-                alt="성장 클리닉"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent transition-opacity duration-500 group-hover:from-deep-blue/90" />
-              <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col justify-end h-full">
-                <div className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">Clinic 01</div>
-                <h3 className="text-3xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-100 transition-colors">
-                  성장 클리닉
-                </h3>
-                <p className="text-white/80 font-light leading-relaxed line-clamp-2 md:line-clamp-3">
-                  성조숙증 · 저신장 (성장호르몬) · 소아비만
-                </p>
-                <div className="mt-6 flex items-center text-sm font-bold text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                  자세히 보기 <ArrowDown className="ml-1 w-4 h-4 -rotate-90" />
+          {/* Desktop Layout: Bento Grid */}
+          <div className="hidden md:grid grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {clinics.map((clinic, idx) => (
+              <Link key={idx} href={clinic.href} className="group relative w-full h-[480px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 block shrink-0">
+                <Image
+                  src={clinic.image}
+                  alt={clinic.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent transition-opacity duration-500 ${clinic.hoverGradient}`} />
+                <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col justify-end h-full">
+                  <div className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">{clinic.id}</div>
+                  <h3 className={`text-3xl font-bold text-white mb-3 tracking-tight transition-colors ${clinic.hoverTitleColor}`}>
+                    {clinic.title}
+                  </h3>
+                  <p className="text-white/80 font-light leading-relaxed line-clamp-3">
+                    {clinic.desc}
+                  </p>
+                  <div className="mt-6 flex items-center text-sm font-bold text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                    자세히 보기 <ArrowDown className="ml-1 w-4 h-4 -rotate-90" />
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            ))}
+          </div>
 
-            {/* Clinic 02 */}
-            <Link href="/clinic#departments" className="group relative w-full h-[400px] md:h-[480px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 block">
-              <Image
-                src="/images/dev_playroom_wooden_toys.png"
-                alt="아동발달 센터"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent transition-opacity duration-500 group-hover:from-coral/90" />
-              <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col justify-end h-full">
-                <div className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">Clinic 02</div>
-                <h3 className="text-3xl font-bold text-white mb-3 tracking-tight group-hover:text-amber-100 transition-colors">
-                  아동발달 센터
-                </h3>
-                <p className="text-white/80 font-light leading-relaxed line-clamp-2 md:line-clamp-3">
-                  발달 평가 · 언어치료 · 감각통합치료
-                </p>
-                <div className="mt-6 flex items-center text-sm font-bold text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                  자세히 보기 <ArrowDown className="ml-1 w-4 h-4 -rotate-90" />
-                </div>
-              </div>
-            </Link>
+          {/* Mobile Layout: Horizontal Marquee Slider */}
+          <div className="md:hidden relative w-full overflow-hidden flex" style={{ paddingBottom: '2rem' }}>
+            {/* Gradient overlays to fade edges on mobile */}
+            <div className="absolute top-0 left-0 w-8 h-full bg-gradient-to-r from-[#FBFBFD] to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-[#FBFBFD] to-transparent z-10 pointer-events-none" />
 
-            {/* Clinic 03 */}
-            <Link href="/clinic#departments" className="group relative w-full h-[400px] md:h-[480px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 block">
-              <Image
-                src="/images/clinic_respiratory_new.png"
-                alt="호흡기/알레르기 클리닉"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent transition-opacity duration-500 group-hover:from-sky-700/90" />
-              <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col justify-end h-full">
-                <div className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">Clinic 03</div>
-                <h3 className="text-3xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-100 transition-colors">
-                  호흡기/알레르기
-                </h3>
-                <p className="text-white/80 font-light leading-relaxed line-clamp-2 md:line-clamp-3">
-                  숨쉬기 편안한 건강한 일상
-                </p>
-                <div className="mt-6 flex items-center text-sm font-bold text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                  자세히 보기 <ArrowDown className="ml-1 w-4 h-4 -rotate-90" />
-                </div>
-              </div>
-            </Link>
+            <motion.div
+              className="flex gap-4 cursor-grab active:cursor-grabbing"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{
+                duration: 20, // adjust speed of marquee here
+                ease: "linear",
+                repeat: Infinity,
+              }}
+            >
+              {/* Duplicate array for endless scrolling effect */}
+              {[...clinics, ...clinics].map((clinic, idx) => (
+                <Link key={`mobile-${idx}`} href={clinic.href} className="group relative w-[80vw] sm:w-[50vw] h-[360px] rounded-3xl overflow-hidden shadow-md border border-gray-100 block shrink-0">
+                  <Image
+                    src={clinic.image}
+                    alt={clinic.title}
+                    fill
+                    className="object-cover transition-transform duration-700"
+                  />
+                  {/* Subtle active state gradient for mobile instead of hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col justify-end h-full pointer-events-none">
+                    <div className="text-xs font-bold text-white/80 mb-1.5 uppercase tracking-wide">{clinic.id}</div>
+                    <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                      {clinic.title}
+                    </h3>
+                    <p className="text-white/80 text-sm font-light leading-relaxed line-clamp-2">
+                      {clinic.desc}
+                    </p>
+                    <div className="mt-4 flex items-center text-xs font-bold text-white">
+                      자세히 보기 <ArrowDown className="ml-1 w-3 h-3 -rotate-90" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
@@ -753,8 +782,6 @@ export default function HospitalMainPage() {
           </div>
         </div>
       </section>
-
-
     </main>
   );
 }

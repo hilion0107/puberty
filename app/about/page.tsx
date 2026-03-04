@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, useMotionValue, useTransform, useAnimation } from "framer-motion";
 import { GraduationCap, Award, Stethoscope, BookOpen, ChevronLeft, ChevronRight, X, Star } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
+import HoverAccordionGallery from "@/components/HoverAccordionGallery";
 
 /* ─── Animation Variants ─── */
 const fadeInUp = {
@@ -703,14 +704,14 @@ export default function AboutPage() {
                     </motion.div>
                 </div>
 
-                {/* Carousel */}
+                {/* Hover Accordion Gallery */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    <ImageCarousel
+                    <HoverAccordionGallery
                         images={galleryImages}
                         onImageClick={(i) => setLightboxIndex(i)}
                     />

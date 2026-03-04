@@ -91,11 +91,11 @@ export default function HomePopup() {
 
     const getSizeClass = (sz: string): string => {
         switch (sz) {
-            case "1": return "w-[85vw] md:w-[70vw]";
-            case "1/2": return "w-[50vw] md:w-[40vw]";
-            case "1/3": return "w-[35vw] md:w-[30vw]";
-            case "1/4": return "w-[28vw] md:w-[22vw]";
-            default: return "w-[50vw] md:w-[40vw]";
+            case "1": return "w-[70vw] md:w-[70vw]";
+            case "1/2": return "w-[70vw] md:w-[40vw]";
+            case "1/3": return "w-[70vw] md:w-[30vw]";
+            case "1/4": return "w-[70vw] md:w-[22vw]";
+            default: return "w-[70vw] md:w-[40vw]";
         }
     };
 
@@ -264,6 +264,7 @@ function DraggablePopup({ popup, offset, positionClasses, sizeClass, onClose, on
                             alt={popup.title || "공지 팝업"}
                             className="w-full h-auto pointer-events-none"
                             draggable={false}
+                            fetchPriority="high"
                         />
                     )}
                 </div>

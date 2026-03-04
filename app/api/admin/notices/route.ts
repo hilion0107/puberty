@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // GET: List all notices (public)
 export async function GET() {
     try {

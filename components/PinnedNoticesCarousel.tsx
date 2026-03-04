@@ -227,7 +227,7 @@ export default function PinnedNoticesCarousel() {
                                                             currentNotice.title
                                                         )}
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">
+                                                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-3 whitespace-pre-line mb-4">
                                                         {currentNotice.content}
                                                     </p>
                                                     <div className="flex items-center gap-3">
@@ -274,7 +274,7 @@ export default function PinnedNoticesCarousel() {
                                                             currentNotice.title
                                                         )}
                                                     </h3>
-                                                    <p className="text-sm text-gray-400 line-clamp-2">
+                                                    <p className="text-sm text-gray-400 line-clamp-3 whitespace-pre-line">
                                                         {currentNotice.content}
                                                     </p>
                                                     <p className="mt-3 text-xs text-gray-300">

@@ -176,7 +176,7 @@ export default function NoticesPage() {
                                                             <ExternalLink className="w-3.5 h-3.5 text-green-400 shrink-0" />
                                                         )}
                                                     </div>
-                                                    <p className="text-sm text-gray-400 line-clamp-1 ml-6">
+                                                    <p className="text-sm text-gray-400 line-clamp-5 whitespace-pre-line ml-6">
                                                         {notice.content}
                                                     </p>
                                                     <div className="mt-3 ml-6 flex items-center gap-3 text-xs text-gray-300">

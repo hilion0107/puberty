@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth";
 import { analyzeScheduleImage } from "@/lib/gemini";
+import { put } from "@vercel/blob";
 
 // POST: Upload image and analyze with Gemini OCR
 export async function POST(request: NextRequest) {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "년/월을 지정해주세요." }, { status: 400 });
         }
 
-        // Read the image buffer
+        // Read the image buffer for Gemini
         const buffer = Buffer.from(await file.arrayBuffer());
         const base64Image = buffer.toString("base64");
         const mimeType = file.type || 'image/jpeg';
@@ -31,10 +32,13 @@ export async function POST(request: NextRequest) {
         // Analyze with Gemini directly using base64
         const result = await analyzeScheduleImage(base64Image, mimeType, year, month);
 
+        // Upload to Vercel Blob for storage
+        const blob = await put(file.name, file, { access: 'public' });
+
         return NextResponse.json({
             success: true,
             data: result,
-            imagePath: `data:${mimeType};base64,${base64Image}`,
+            imagePath: blob.url,
         });
     } catch (error) {
         console.error("Schedule OCR error:", error);

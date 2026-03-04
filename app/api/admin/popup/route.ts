@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
-
-export const dynamic = 'force-dynamic';
+import { put } from "@vercel/blob";
 
 interface PopupRow {
     id: number;
@@ -102,10 +101,8 @@ export async function POST(request: NextRequest) {
         let imagePath = (formData.get("existingImagePath") as string) || "";
 
         if (file && file.size > 0) {
-            const buffer = Buffer.from(await file.arrayBuffer());
-            const base64Data = buffer.toString("base64");
-            const mimeType = file.type || 'image/jpeg';
-            imagePath = `data:${mimeType};base64,${base64Data}`;
+            const blob = await put(file.name, file, { access: 'public' });
+            imagePath = blob.url;
         }
 
         const db = await getDb();

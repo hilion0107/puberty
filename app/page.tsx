@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, Variants, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Phone, Navigation2, CalendarCheck } from "lucide-react";
+import { MapPin, Clock, Phone, Navigation2, CalendarCheck, ArrowDown, Stethoscope, Baby } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import HomePopup from "@/components/HomePopup";
@@ -489,99 +489,75 @@ export default function HospitalMainPage() {
             <p className="mt-6 text-xl text-gray-500 font-medium">우리아이의 바른 성장을 위한 세분화된 진료</p>
           </motion.div>
 
-          <div className="grid gap-8 md:gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
             {/* Clinic 01 */}
-            <motion.div
-              className="flex flex-col md:flex-row items-center gap-12 group"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="w-full md:w-1/2 md:pr-12">
-                <div className="text-sm font-bold text-deep-blue mb-4 uppercase tracking-wider">Clinic 01</div>
-                <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight group-hover:text-deep-blue transition-colors duration-500">
+            <Link href="/clinic#departments" className="group relative w-full h-[400px] md:h-[480px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 block">
+              <Image
+                src="/images/clinic_growth_new.png"
+                alt="성장 클리닉"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent transition-opacity duration-500 group-hover:from-deep-blue/90" />
+              <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col justify-end h-full">
+                <div className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">Clinic 01</div>
+                <h3 className="text-3xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-100 transition-colors">
                   성장 클리닉
                 </h3>
-                <p className="text-2xl text-gray-400 font-light leading-relaxed">
-                  성조숙증 <br />
-                  저신장 (성장호르몬) <br />
-                  소아비만
+                <p className="text-white/80 font-light leading-relaxed line-clamp-2 md:line-clamp-3">
+                  성조숙증 · 저신장 (성장호르몬) · 소아비만
                 </p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="w-full md:w-1/2">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-gray-100 shadow-xl shadow-gray-200/50">
-                  <Image
-                    src="/images/clinic_growth_new.png"
-                    alt="성장 클리닉"
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                <div className="mt-6 flex items-center text-sm font-bold text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                  자세히 보기 <ArrowDown className="ml-1 w-4 h-4 -rotate-90" />
                 </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </Link>
 
             {/* Clinic 02 */}
-            <motion.div
-              className="flex flex-col md:flex-row-reverse items-center gap-12 mt-16 md:mt-32 group"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="w-full md:w-1/2 md:pl-12">
-                <div className="text-sm font-bold text-coral mb-4 uppercase tracking-wider">Clinic 02</div>
-                <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight group-hover:text-coral transition-colors duration-500">
+            <Link href="/clinic#departments" className="group relative w-full h-[400px] md:h-[480px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 block">
+              <Image
+                src="/images/dev_playroom_wooden_toys.png"
+                alt="아동발달 센터"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent transition-opacity duration-500 group-hover:from-coral/90" />
+              <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col justify-end h-full">
+                <div className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">Clinic 02</div>
+                <h3 className="text-3xl font-bold text-white mb-3 tracking-tight group-hover:text-amber-100 transition-colors">
                   아동발달 센터
                 </h3>
-                <p className="text-2xl text-gray-400 font-light leading-relaxed">
-                  발달 평가 <br />
-                  언어치료 <br />
-                  감각통합치료
+                <p className="text-white/80 font-light leading-relaxed line-clamp-2 md:line-clamp-3">
+                  발달 평가 · 언어치료 · 감각통합치료
                 </p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="w-full md:w-1/2">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-gray-100">
-                  <Image
-                    src="/images/dev_playroom_wooden_toys.png"
-                    alt="아동발달 센터"
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                <div className="mt-6 flex items-center text-sm font-bold text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                  자세히 보기 <ArrowDown className="ml-1 w-4 h-4 -rotate-90" />
                 </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </Link>
 
             {/* Clinic 03 */}
-            <motion.div
-              className="flex flex-col md:flex-row items-center gap-12 mt-16 md:mt-32 group"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="w-full md:w-1/2 md:pr-12">
-                <div className="text-sm font-bold text-sky-500 mb-4 uppercase tracking-wider">Clinic 03</div>
-                <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight group-hover:text-sky-500 transition-colors duration-500">
-                  호흡기/알레르기 클리닉
+            <Link href="/clinic#departments" className="group relative w-full h-[400px] md:h-[480px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 block">
+              <Image
+                src="/images/clinic_respiratory_new.png"
+                alt="호흡기/알레르기 클리닉"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent transition-opacity duration-500 group-hover:from-sky-700/90" />
+              <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col justify-end h-full">
+                <div className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">Clinic 03</div>
+                <h3 className="text-3xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-100 transition-colors">
+                  호흡기/알레르기
                 </h3>
-                <p className="text-2xl text-gray-400 font-light leading-relaxed">
-                  숨쉬기 편안한 <br />
-                  건강한 일상
+                <p className="text-white/80 font-light leading-relaxed line-clamp-2 md:line-clamp-3">
+                  숨쉬기 편안한 건강한 일상
                 </p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="w-full md:w-1/2">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-gray-100 shadow-xl shadow-gray-200/50">
-                  <Image
-                    src="/images/clinic_respiratory_new.png"
-                    alt="호흡기/알레르기 클리닉"
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                <div className="mt-6 flex items-center text-sm font-bold text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                  자세히 보기 <ArrowDown className="ml-1 w-4 h-4 -rotate-90" />
                 </div>
-              </motion.div>
-            </motion.div>
-
+              </div>
+            </Link>
           </div>
         </div>
       </section>

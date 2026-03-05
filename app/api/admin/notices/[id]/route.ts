@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 import { put } from "@vercel/blob";
+import { revalidatePath } from "next/cache";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 // GET: Get single notice (public)
 export async function GET(
@@ -80,6 +81,10 @@ export async function PUT(
             }
         }
 
+        revalidatePath("/", "layout");
+        revalidatePath("/notices", "page");
+        revalidatePath(`/notices/${id}`, "page");
+
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Notice PUT error:", error);
@@ -101,6 +106,9 @@ export async function DELETE(
         const { id } = await params;
         const db = await getDb();
         await db.query("DELETE FROM notices WHERE id = $1", [id]);
+
+        revalidatePath("/", "layout");
+        revalidatePath("/notices", "page");
 
         return NextResponse.json({ success: true });
     } catch (error) {

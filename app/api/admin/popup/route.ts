@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 import { put } from "@vercel/blob";
+import { revalidatePath } from "next/cache";
+
+export const revalidate = 3600;
 
 interface PopupRow {
     id: number;
@@ -129,6 +132,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        revalidatePath("/", "layout");
+
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Popup POST error:", error);
@@ -147,6 +152,9 @@ export async function DELETE(request: NextRequest) {
         const { id } = await request.json();
         const db = await getDb();
         await db.query("DELETE FROM popup WHERE id = $1", [id]);
+
+        revalidatePath("/", "layout");
+
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Popup DELETE error:", error);

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 // GET: Retrieve schedule for given year/month (public)
 export async function GET(request: NextRequest) {
@@ -96,6 +97,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        revalidatePath("/", "layout");
+        revalidatePath("/clinic", "page");
+
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Schedule POST error:", error);
@@ -121,6 +125,9 @@ export async function DELETE(request: NextRequest) {
 
         const db = await getDb();
         await db.query("DELETE FROM schedule WHERE year = $1 AND month = $2", [year, month]);
+
+        revalidatePath("/", "layout");
+        revalidatePath("/clinic", "page");
 
         return NextResponse.json({ success: true });
     } catch (error) {

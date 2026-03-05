@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 import { put } from "@vercel/blob";
+import { revalidatePath } from "next/cache";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 // GET: List all notices (public)
 export async function GET() {
@@ -67,6 +68,9 @@ export async function POST(request: NextRequest) {
                 [title, titleHtml, content, contentHtml, imagePath, linkUrl, isPinned, sortOrder, user.username]
             );
 
+            revalidatePath("/", "layout");
+            revalidatePath("/notices", "page");
+
             return NextResponse.json({
                 success: true,
                 notice: { id: result.rows[0].id, title, content, author: user.username },
@@ -88,6 +92,9 @@ export async function POST(request: NextRequest) {
                 "INSERT INTO notices (title, title_html, content, content_html, sort_order, author) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
                 [title, title, content, `<p>${content}</p>`, sortOrder, user.username]
             );
+
+            revalidatePath("/", "layout");
+            revalidatePath("/notices", "page");
 
             return NextResponse.json({
                 success: true,

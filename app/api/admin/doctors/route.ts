@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 // GET: List all doctors (public)
 export async function GET() {
@@ -39,6 +40,9 @@ export async function POST(request: NextRequest) {
                 [d.abbr || d.abbreviation, d.name, d.color || "#3B82F6", i]
             );
         }
+
+        revalidatePath("/", "layout");
+        revalidatePath("/clinic", "page");
 
         return NextResponse.json({ success: true });
     } catch (error) {

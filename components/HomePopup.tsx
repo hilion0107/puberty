@@ -258,13 +258,14 @@ function DraggablePopup({ popup, offset, positionClasses, sizeClass, onClose, on
                             title={popup.title || "PDF 팝업"}
                         />
                     ) : (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
+                        <Image
                             src={popup.imagePath}
                             alt={popup.title || "공지 팝업"}
+                            width={800}
+                            height={800}
                             className="w-full h-auto pointer-events-none"
                             draggable={false}
-                            fetchPriority="high"
+                            priority={true}
                         />
                     )}
                 </div>

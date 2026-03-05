@@ -18,13 +18,16 @@ export default function HoverAccordionGallery({
 
     // Track which image index is hovered (relative to the full original array is fine, but we'll use local index for simplicity)
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth < 768) {
                 setItemsPerPage(4);
+                setIsMobile(true);
             } else {
                 setItemsPerPage(7);
+                setIsMobile(false);
             }
         };
 
@@ -77,9 +80,19 @@ export default function HoverAccordionGallery({
                                 }}
                                 exit={{ opacity: 0, scale: 0.8, flex: 0 }}
                                 transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-                                onMouseEnter={() => setHoveredIndex(globalIndex)}
-                                onMouseLeave={() => setHoveredIndex(null)}
-                                onClick={() => onImageClick(globalIndex)}
+                                onMouseEnter={() => !isMobile && setHoveredIndex(globalIndex)}
+                                onMouseLeave={() => !isMobile && setHoveredIndex(null)}
+                                onClick={() => {
+                                    if (isMobile) {
+                                        if (hoveredIndex === globalIndex) {
+                                            onImageClick(globalIndex);
+                                        } else {
+                                            setHoveredIndex(globalIndex);
+                                        }
+                                    } else {
+                                        onImageClick(globalIndex);
+                                    }
+                                }}
                                 className="relative h-full overflow-hidden rounded-2xl cursor-pointer group flex-shrink-0 min-w-[40px] md:min-w-[60px]"
                             >
                                 <Image

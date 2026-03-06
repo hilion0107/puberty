@@ -604,7 +604,7 @@ export default function HospitalMainPage() {
             viewport={{ once: true }}
             variants={fadeInUp}
           >
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#222222] tracking-tight">진료시간 및 오시는 길</h2>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-[#222222] tracking-tight">오시는 길</h2>
           </motion.div>
 
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start justify-center max-w-6xl mx-auto">

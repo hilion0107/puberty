@@ -16,9 +16,12 @@ export default function HoverAccordionGallery({
     const [itemsPerPage, setItemsPerPage] = useState(7);
     const [startIndex, setStartIndex] = useState(0);
 
-    // Track which image index is hovered (relative to the full original array is fine, but we'll use local index for simplicity)
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+
+    // Track dragging to prevent accidental clicks
+    const [dragStartX, setDragStartX] = useState<number | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
@@ -60,9 +63,50 @@ export default function HoverAccordionGallery({
     const showPrev = startIndex > 0;
     const showNext = startIndex + itemsPerPage < images.length;
 
+    // 3. Drag / Swipe Logic
+    const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        setDragStartX(clientX);
+        setIsDragging(false);
+    };
+
+    const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+        if (dragStartX === null) return;
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        if (Math.abs(dragStartX - clientX) > 10) {
+            setIsDragging(true); // User moved pointer significantly, it's a drag
+        }
+    };
+
+    const handleDragEnd = (e: React.TouchEvent | React.MouseEvent) => {
+        if (dragStartX === null) return;
+        const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
+        const diff = dragStartX - clientX;
+
+        // Threshold for swipe is 50px
+        if (diff > 50 && showNext) {
+            handleNext();
+        } else if (diff < -50 && showPrev) {
+            handlePrev();
+        }
+
+        setDragStartX(null);
+        // Delay resetting isDragging so the trailing click event can be blocked
+        setTimeout(() => setIsDragging(false), 50);
+    };
+
     return (
-        <div className="relative w-full group/gallery">
-            <div className="w-full h-[400px] md:h-[500px] flex gap-2 md:gap-4 overflow-hidden rounded-3xl">
+        <div className="relative w-full group/gallery select-none">
+            <div
+                className="w-full h-[400px] md:h-[500px] flex gap-2 md:gap-4 overflow-hidden rounded-3xl"
+                onTouchStart={handleDragStart}
+                onTouchMove={handleDragMove}
+                onTouchEnd={handleDragEnd}
+                onMouseDown={handleDragStart}
+                onMouseMove={handleDragMove}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+            >
                 <AnimatePresence mode="popLayout">
                     {displayImages.map((imageObj, localIndex) => {
                         const globalIndex = startIndex + localIndex;
@@ -82,7 +126,12 @@ export default function HoverAccordionGallery({
                                 transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
                                 onMouseEnter={() => !isMobile && setHoveredIndex(globalIndex)}
                                 onMouseLeave={() => !isMobile && setHoveredIndex(null)}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    if (isDragging) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        return;
+                                    }
                                     if (isMobile) {
                                         if (hoveredIndex === globalIndex) {
                                             onImageClick(globalIndex);

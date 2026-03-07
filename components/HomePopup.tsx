@@ -20,7 +20,11 @@ interface PopupState {
     offset: { x: number; y: number };
 }
 
-export default function HomePopup() {
+interface HomePopupProps {
+    initialData?: PopupData[];
+}
+
+export default function HomePopup({ initialData }: HomePopupProps) {
     const [popupStates, setPopupStates] = useState<PopupState[]>([]);
 
     useEffect(() => {
@@ -32,28 +36,36 @@ export default function HomePopup() {
         const sessionDismissed = sessionStorage.getItem("popup_dismissed");
         if (sessionDismissed === "true") return;
 
-        fetch("/api/admin/popup")
-            .then((res) => res.json())
-            .then((data) => {
-                const popups: PopupData[] = data.popups || [];
-                if (popups.length === 0 && data.popup) {
-                    popups.push(data.popup);
-                }
-                if (popups.length > 0) {
-                    // Check individual dismiss state
-                    const dismissed = JSON.parse(sessionStorage.getItem("popup_dismissed_ids") || "[]");
-                    const states = popups
-                        .filter((p) => !dismissed.includes(p.id))
-                        .map((popup, idx) => ({
-                            popup,
-                            visible: true,
-                            offset: { x: idx * 30, y: idx * 30 },
-                        }));
-                    setPopupStates(states);
-                }
-            })
-            .catch(() => { });
-    }, []);
+        const handleData = (popups: PopupData[]) => {
+            if (popups.length > 0) {
+                // Check individual dismiss state
+                const dismissed = JSON.parse(sessionStorage.getItem("popup_dismissed_ids") || "[]");
+                const states = popups
+                    .filter((p) => !dismissed.includes(p.id))
+                    .map((popup, idx) => ({
+                        popup,
+                        visible: true,
+                        offset: { x: idx * 30, y: idx * 30 },
+                    }));
+                setPopupStates(states);
+            }
+        };
+
+        if (initialData && initialData.length > 0) {
+            handleData(initialData);
+        } else {
+             fetch("/api/admin/popup")
+                 .then((res) => res.json())
+                 .then((data) => {
+                     const popups: PopupData[] = data.popups || [];
+                     if (popups.length === 0 && data.popup) {
+                         popups.push(data.popup);
+                     }
+                     handleData(popups);
+                 })
+                 .catch(() => { });
+        }
+    }, [initialData]);
 
     const handleClose = (id: number) => {
         setPopupStates((prev) => prev.map((s) => s.popup.id === id ? { ...s, visible: false } : s));

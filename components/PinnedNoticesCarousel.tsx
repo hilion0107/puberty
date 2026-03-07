@@ -24,8 +24,12 @@ const fadeInUp = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" as const } },
 };
 
-export default function PinnedNoticesCarousel() {
-    const [notices, setNotices] = useState<Notice[]>([]);
+interface PinnedNoticesCarouselProps {
+    initialNotices?: Notice[];
+}
+
+export default function PinnedNoticesCarousel({ initialNotices }: PinnedNoticesCarouselProps) {
+    const [notices, setNotices] = useState<Notice[]>(initialNotices || []);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -34,16 +38,18 @@ export default function PinnedNoticesCarousel() {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        fetch("/api/admin/notices")
-            .then((res) => res.json())
-            .then((data) => {
-                const pinned = (data.notices || []).filter(
-                    (n: Notice) => n.is_pinned === 1
-                );
-                setNotices(pinned);
-            })
-            .catch(() => { });
-    }, []);
+        if (!initialNotices || initialNotices.length === 0) {
+            fetch("/api/admin/notices")
+                .then((res) => res.json())
+                .then((data) => {
+                    const pinned = (data.notices || []).filter(
+                        (n: Notice) => n.is_pinned === 1
+                    );
+                    setNotices(pinned);
+                })
+                .catch(() => { });
+        }
+    }, [initialNotices]);
 
     const goNext = useCallback(() => {
         if (notices.length <= 1) return;

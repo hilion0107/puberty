@@ -262,7 +262,30 @@ const staffData = [
 ];
 
 /* ─── Gallery Images ─── */
-const galleryImages = Array.from({ length: 15 }, (_, i) => `/images/int${i + 1}.jpg`);
+export type GalleryImage = {
+    src: string;
+    label: string;
+};
+
+const galleryImages: GalleryImage[] = [
+    { src: "/images/interior/1.JPG", label: "외관" },
+    { src: "/images/interior/2.jpeg", label: "외관" },
+    { src: "/images/interior/3.JPG", label: "데스크" },
+    { src: "/images/interior/4.JPG", label: "대기실" },
+    { src: "/images/interior/5.JPG", label: "대기실" },
+    { src: "/images/interior/6.JPG", label: "신생아대기실" },
+    { src: "/images/interior/7.JPG", label: "신생아대기실" },
+    { src: "/images/interior/8.JPG", label: "놀이방" },
+    { src: "/images/interior/9.JPG", label: "유아화장실" },
+    { src: "/images/interior/10.JPG", label: "호흡기치료실" },
+    { src: "/images/interior/11.JPG", label: "방사선실" },
+    { src: "/images/interior/12.jpeg", label: "1인 수액실" },
+    { src: "/images/interior/13.jpeg", label: "수액실" },
+    { src: "/images/interior/14.JPG", label: "수액실" },
+    { src: "/images/interior/15.JPG", label: "아동발달센터" },
+    { src: "/images/interior/16.JPG", label: "감각통합실" },
+    { src: "/images/interior/17.JPG", label: "언어치료실" }
+];
 
 /* ─── Lightbox Component ─── */
 function Lightbox({
@@ -270,7 +293,7 @@ function Lightbox({
     startIndex,
     onClose,
 }: {
-    images: string[];
+    images: GalleryImage[];
     startIndex: number;
     onClose: () => void;
 }) {
@@ -329,8 +352,8 @@ function Lightbox({
                     className="relative w-[90vw] h-[70vh] md:w-[75vw] md:h-[80vh]"
                 >
                     <Image
-                        src={images[current]}
-                        alt={`병원 내부 ${current + 1}`}
+                        src={images[current].src}
+                        alt={images[current].label}
                         fill
                         className="object-contain"
                     />
@@ -338,8 +361,9 @@ function Lightbox({
             </AnimatePresence>
 
             {/* Counter */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium tracking-wider">
-                {current + 1} / {images.length}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium tracking-wider text-center">
+                <div className="text-xl md:text-2xl text-white mb-2 font-bold drop-shadow-md">{images[current].label}</div>
+                <div>{current + 1} / {images.length}</div>
             </div>
         </motion.div>
     );

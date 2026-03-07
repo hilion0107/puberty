@@ -9,7 +9,7 @@ export default function HoverAccordionGallery({
     images,
     onImageClick
 }: {
-    images: string[];
+    images: { src: string; label: string }[];
     onImageClick: (index: number) => void;
 }) {
     // 1. Determine items per page based on screen width
@@ -64,13 +64,13 @@ export default function HoverAccordionGallery({
         <div className="relative w-full group/gallery">
             <div className="w-full h-[400px] md:h-[500px] flex gap-2 md:gap-4 overflow-hidden rounded-3xl">
                 <AnimatePresence mode="popLayout">
-                    {displayImages.map((src, localIndex) => {
+                    {displayImages.map((imageObj, localIndex) => {
                         const globalIndex = startIndex + localIndex;
                         const isHovered = hoveredIndex === globalIndex;
 
                         return (
                             <motion.div
-                                key={`${src}-${globalIndex}`} // Unique key for AnimatePresence
+                                key={`${imageObj.src}-${globalIndex}`} // Unique key for AnimatePresence
                                 layout
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{
@@ -96,16 +96,26 @@ export default function HoverAccordionGallery({
                                 className="relative h-full overflow-hidden rounded-2xl cursor-pointer group flex-shrink-0 min-w-[40px] md:min-w-[60px]"
                             >
                                 <Image
-                                    src={src}
-                                    alt={`Gallery Image ${globalIndex + 1}`}
+                                    src={imageObj.src}
+                                    alt={imageObj.label}
                                     fill
                                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
 
                                 {/* Dark Overlay */}
                                 <div
-                                    className={`absolute inset-0 bg-black/40 transition-opacity duration-500 ease-in-out ${isHovered ? 'opacity-0' : 'opacity-100'}`}
+                                    className={`absolute inset-0 transition-all duration-500 ease-in-out ${isHovered ? 'bg-gradient-to-t from-black/80 via-black/10 to-transparent' : 'bg-black/40'}`}
                                 />
+
+                                {/* Label */}
+                                <div className="absolute bottom-4 left-4 right-4 z-20 pointer-events-none flex items-end">
+                                    <span
+                                        className={`text-white font-bold transition-all duration-500 block ${isHovered ? 'text-lg md:text-xl drop-shadow-md whitespace-normal' : 'text-sm whitespace-nowrap overflow-hidden text-ellipsis opacity-0 md:opacity-100'}`}
+                                        style={{ writingMode: !isHovered && !isMobile ? 'vertical-rl' : 'horizontal-tb' }}
+                                    >
+                                        {imageObj.label}
+                                    </span>
+                                </div>
 
                                 {/* Expand Icon */}
                                 <AnimatePresence>

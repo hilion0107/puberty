@@ -495,9 +495,8 @@ export default function AboutPage() {
                                 variants={fadeInLeft}
                                 className="text-lg md:text-xl text-gray-500 font-medium leading-relaxed max-w-lg mx-auto lg:mx-0"
                             >
-                                성장 발달 전문 소아과로서
-                                <br className="hidden md:block" />
-                                아이 한 명 한 명의 건강한 내일을 설계합니다
+                                <span className="block md:inline">성장 발달 전문 소아과로서 </span>
+                                <span className="block md:inline">아이 한 명 한 명의 건강한 내일을 설계합니다</span>
                             </motion.p>
 
                             <motion.div variants={fadeInLeft} className="mt-10 flex flex-wrap gap-3 justify-center lg:justify-start">
@@ -724,7 +723,8 @@ export default function AboutPage() {
                             병원 둘러보기
                         </h2>
                         <p className="text-lg text-gray-500 font-medium">
-                            따뜻하고 편안한 공간에서 아이들이 안심하고 진료받을 수 있습니다
+                            따뜻하고 편안한 공간에서
+                            <br className="block md:hidden" /> 아이들이 안심하고 진료받을 수 있습니다
                         </p>
                     </motion.div>
                 </div>

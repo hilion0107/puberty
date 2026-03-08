@@ -679,28 +679,23 @@ interface ScheduleData {
     businessHours?: { amStart: string; amEnd: string; pmStart: string; pmEnd: string };
 }
 
-function ScheduleDisplay() {
-    const [schedules, setSchedules] = useState<ScheduleData[]>([]);
+function ScheduleDisplay({ initialSchedules = [] }: { initialSchedules: ScheduleData[] }) {
+    const [schedules, setSchedules] = useState<ScheduleData[]>(initialSchedules);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
 
     useEffect(() => {
-        fetch("/api/admin/schedule?all=true")
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.data?.length > 0) {
-                    setSchedules(data.data);
+        if (initialSchedules.length > 0) {
+            setSchedules(initialSchedules);
 
-                    // Find current month index
-                    const now = new Date();
-                    const cy = now.getFullYear();
-                    const cm = now.getMonth() + 1;
-                    const idx = data.data.findIndex((s: any) => s.year === cy && s.month === cm);
-                    setCurrentIndex(idx >= 0 ? idx : 0);
-                }
-            })
-            .catch(() => { });
-    }, []);
+            // Find current month index
+            const now = new Date();
+            const cy = now.getFullYear();
+            const cm = now.getMonth() + 1;
+            const idx = initialSchedules.findIndex((s: any) => s.year === cy && s.month === cm);
+            setCurrentIndex(idx >= 0 ? idx : 0);
+        }
+    }, [initialSchedules]);
 
     if (schedules.length === 0) {
         return (
@@ -1137,7 +1132,7 @@ export default function ClinicContent({ initialSchedules = [] }: { initialSchedu
                         </h2>
                     </motion.div>
 
-                    <ScheduleDisplay />
+                    <ScheduleDisplay initialSchedules={initialSchedules} />
                 </div>
             </section>
 

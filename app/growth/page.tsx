@@ -182,7 +182,7 @@ export default function GrowthPage() {
                         </h1>
                         <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gray-600 md:text-lg">
                             저신장증은 치료 시기를 놓치지 않는 것이 가장 중요합니다.
-                            <br />의학적 기준에 맞는 정확한 진단을 통해 맞춤형 성장 플랜을 세워드립니다.
+                            <br />의학적 기준에 맞는 정확한 진단을 통해 <br className="block md:hidden" /> 맞춤형 성장 플랜을 세워드립니다.
                         </p>
                     </motion.div>
 
@@ -470,21 +470,13 @@ export default function GrowthPage() {
                             주사법 동영상 보기
                         </a>
                     </div>
+                    <p className="mt-12 text-sm text-gray-400">
+                        본 자료는 진료 상담을 대체하지 않습니다.
+                    </p>
                 </motion.div>
             </section>
 
-            {/* ─── Footer ─── */}
-            <footer className="border-t border-gray-100 bg-white py-8">
-                <div className="mx-auto max-w-6xl px-6 text-center">
-                    <p className="text-xs text-gray-400">
-                        본 자료는 의료 전문가의 감수를 거쳐 제작되었으며, 진료 상담을 대체하지
-                        않습니다.
-                    </p>
-                    <p className="mt-2 text-xs text-gray-300">
-                        © 2025 저신장 클리닉. All rights reserved.
-                    </p>
-                </div>
-            </footer>
+
         </main>
     );
 }

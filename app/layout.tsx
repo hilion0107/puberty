@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
+import FloatingQuesButton from "../components/FloatingQuesButton";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
         <Navigation />
         {children}
         <Footer />
+        <FloatingQuesButton />
       </body>
     </html>
   );

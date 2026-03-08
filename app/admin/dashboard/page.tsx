@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, FileText, Image, Users, LogOut, Shield } from "lucide-react";
+import { Calendar, FileText, Image, Users, LogOut, Shield, ClipboardList } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -42,6 +42,15 @@ const menuItems = [
         color: "from-purple-500 to-violet-600",
         bgColor: "bg-purple-50",
         iconColor: "text-purple-600",
+    },
+    {
+        title: "문진표 결과",
+        description: "환자가 제출한 사전 문진표를 카테고리별로 조회하고 관리합니다.",
+        icon: ClipboardList,
+        href: "/admin/questionnaire",
+        color: "from-cyan-500 to-blue-600",
+        bgColor: "bg-cyan-50",
+        iconColor: "text-cyan-600",
     },
 ];
 

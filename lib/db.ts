@@ -94,6 +94,17 @@ async function initializeDb() {
                 key VARCHAR(255) PRIMARY KEY,
                 value TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS questionnaires (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                gender VARCHAR(10) NOT NULL,
+                birth_date VARCHAR(20) NOT NULL,
+                privacy_consent BOOLEAN DEFAULT false,
+                category VARCHAR(50) NOT NULL,
+                responses JSONB NOT NULL DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         `);
 
         // Seed initial admin if none exists

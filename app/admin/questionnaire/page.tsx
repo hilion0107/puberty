@@ -1,0 +1,424 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    ArrowLeft, ClipboardList, Eye, Trash2, Edit2, Search,
+    Calendar, User, Ruler, Brain, Wind, Activity, Copy, Check, Save, X
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+interface Questionnaire {
+    id: number;
+    name: string;
+    gender: string;
+    birth_date: string;
+    privacy_consent: boolean;
+    category: string;
+    responses: Record<string, unknown>;
+    created_at: string;
+}
+
+const categoryMap: Record<string, { label: string; icon: typeof Ruler; color: string }> = {
+    growth: { label: "성장", icon: Ruler, color: "text-blue-600 bg-blue-50" },
+    development: { label: "발달", icon: Brain, color: "text-emerald-600 bg-emerald-50" },
+    allergy: { label: "알레르기 비염", icon: Wind, color: "text-amber-600 bg-amber-50" },
+    constipation: { label: "변비", icon: Activity, color: "text-rose-600 bg-rose-50" },
+};
+
+/* ─── 성장 문진표 결과를 텍스트로 변환 ─── */
+function formatGrowthResponse(q: Questionnaire): string {
+    const r = q.responses as Record<string, string | string[]>;
+    let text = `[성장 문진표 결과]\n`;
+    text += `이름: ${q.name}\n성별: ${q.gender}\n생년월일: ${q.birth_date}\n\n`;
+    text += `── 현재 신체 정보 ──\n`;
+    text += `키: ${r.height || "-"}cm / 몸무게: ${r.weight || "-"}kg\n\n`;
+    text += `── 출생 정보 ──\n`;
+    text += `출생 주수: ${r.birthWeeks || "-"}주 ${r.birthDays || "-"}일\n`;
+    text += `출생 체중: ${r.birthWeight || "-"}kg / 출생 키: ${r.birthHeight || "-"}cm / 두위: ${r.birthHeadCircumference || "-"}cm\n`;
+    text += `분만 방법: ${r.deliveryMethod || "-"}\n`;
+    text += `둔위 분만: ${r.breechDelivery || "-"}\n`;
+    text += `신생아 중환자실: ${r.nicuHistory || "-"} ${r.nicuReason ? `(사유: ${r.nicuReason})` : ""}\n\n`;
+    text += `── 가족력 및 부모 정보 ──\n`;
+    text += `특이 가족력: ${r.familyHistory || "-"} ${r.familyDisease ? `(${r.familyDisease})` : ""}\n`;
+    text += `엄마 키: ${r.motherHeight || "-"}cm / 몸무게: ${r.motherWeight || "-"}kg\n`;
+    text += `아빠 키: ${r.fatherHeight || "-"}cm / 몸무게: ${r.fatherWeight || "-"}kg\n`;
+    text += `엄마 초경 연령: ${r.motherMenarche || "-"}\n`;
+    text += `엄마 성장패턴: 작은키(${r.motherShortHeight || "-"}) 마른편(${r.motherThin || "-"})\n`;
+    text += `아빠 성장패턴: 작은키(${r.fatherShortHeight || "-"}) 마른편(${r.fatherThin || "-"})\n\n`;
+    text += `── 2차 성징 및 증상 ──\n`;
+    text += `${q.gender === "여자" ? "가슴발견 시기" : "고환 크기 증가 발견 시기"}: ${r.pubertySigns || "-"}\n`;
+    text += `해당 증상: ${Array.isArray(r.symptoms) && r.symptoms.length > 0 ? r.symptoms.join(", ") : "없음"}\n`;
+    text += `진단 질환/복용약: ${r.diagnosedDiseases || "-"}\n`;
+    return text;
+}
+
+export default function QuestionnaireResultsPage() {
+    const router = useRouter();
+    const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [viewingId, setViewingId] = useState<number | null>(null);
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editResponses, setEditResponses] = useState<Record<string, unknown>>({});
+    const [copied, setCopied] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
+
+    useEffect(() => {
+        fetch("/api/auth/verify")
+            .then((res) => res.json())
+            .then((data) => {
+                if (!data.authenticated) router.push("/admin");
+                else loadData();
+            })
+            .catch(() => router.push("/admin"));
+    }, [router]);
+
+    const loadData = async () => {
+        try {
+            const res = await fetch("/api/questionnaire");
+            const data = await res.json();
+            setQuestionnaires(data.questionnaires || []);
+        } catch {
+            console.error("데이터 로딩 실패");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = (id: number) => {
+        setConfirmModal({
+            message: "이 문진표를 삭제하시겠습니까?",
+            onConfirm: async () => {
+                await fetch("/api/questionnaire", {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id }),
+                });
+                loadData();
+                setConfirmModal(null);
+                if (viewingId === id) setViewingId(null);
+            },
+        });
+    };
+
+    const handleCopy = (q: Questionnaire) => {
+        const text = formatGrowthResponse(q);
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const startEdit = (q: Questionnaire) => {
+        setEditingId(q.id);
+        setEditResponses(JSON.parse(JSON.stringify(q.responses)));
+        setViewingId(null);
+    };
+
+    const handleSaveEdit = async (id: number) => {
+        await fetch("/api/questionnaire", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, responses: editResponses }),
+        });
+        setEditingId(null);
+        loadData();
+    };
+
+    const updateEditResponse = (key: string, value: string | string[]) => {
+        setEditResponses((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const filtered = questionnaires
+        .filter((q) => filter === "all" || q.category === filter)
+        .filter((q) => !searchTerm || q.name.includes(searchTerm));
+
+    if (loading) {
+        return (
+            <main className="min-h-screen bg-gray-50 flex items-center justify-center font-pretendard">
+                <div className="animate-spin h-8 w-8 border-4 border-deep-blue border-t-transparent rounded-full" />
+            </main>
+        );
+    }
+
+    const viewingQ = questionnaires.find((q) => q.id === viewingId);
+    const editingQ = questionnaires.find((q) => q.id === editingId);
+
+    return (
+        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
+                {/* ── 헤더 ── */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-3">
+                        <Link href="/admin/dashboard" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+                            <ArrowLeft className="w-5 h-5 text-gray-400" />
+                        </Link>
+                        <div>
+                            <h1 className="text-2xl sm:text-3xl font-black text-gray-900">문진표 결과</h1>
+                            <p className="text-sm text-gray-400 font-medium">
+                                총 <span className="text-deep-blue font-bold">{questionnaires.length}</span>건
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* ── 필터 & 검색 ── */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                        {[{ id: "all", label: "전체" }, ...Object.entries(categoryMap).map(([id, v]) => ({ id, label: v.label }))].map((f) => (
+                            <button
+                                key={f.id}
+                                onClick={() => setFilter(f.id)}
+                                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${filter === f.id ? "bg-deep-blue text-white shadow-md" : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300"
+                                    }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="relative flex-1 max-w-xs">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="이름 검색"
+                            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
+                        />
+                    </div>
+                </div>
+
+                {/* ── 목록 ── */}
+                <div className="space-y-3">
+                    {filtered.length === 0 ? (
+                        <div className="text-center py-16 text-gray-300">
+                            <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                            <p className="text-sm font-medium">제출된 문진표가 없습니다.</p>
+                        </div>
+                    ) : (
+                        filtered.map((q) => {
+                            const cat = categoryMap[q.category];
+                            return (
+                                <motion.div
+                                    key={q.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${cat?.color || "bg-gray-100 text-gray-500"}`}>
+                                            {cat ? <cat.icon className="w-5 h-5" /> : <ClipboardList className="w-5 h-5" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="text-sm font-bold text-gray-900">{q.name}</span>
+                                                <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">{q.gender}</span>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${cat?.color || "bg-gray-100 text-gray-500"}`}>
+                                                    {cat?.label || q.category}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(q.created_at).toLocaleDateString("ko-KR")} {new Date(q.created_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+                                                <span>·</span>
+                                                <User className="w-3 h-3" />
+                                                {q.birth_date}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1 shrink-0">
+                                            <button onClick={() => setViewingId(q.id)} className="p-2 text-gray-400 hover:text-deep-blue hover:bg-blue-50 rounded-lg transition-colors" title="보기">
+                                                <Eye className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => startEdit(q)} className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="수정">
+                                                <Edit2 className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => handleDelete(q.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="삭제">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })
+                    )}
+                </div>
+            </div>
+
+            {/* ═══════ 보기 모달 (전체 화면) ═══════ */}
+            <AnimatePresence>
+                {viewingQ && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/20 z-50 overflow-y-auto pt-6 pb-16"
+                    >
+                        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <button onClick={() => setViewingId(null)} className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                    <ArrowLeft className="w-5 h-5" /> <span className="text-sm font-bold">목록으로</span>
+                                </button>
+                                <button
+                                    onClick={() => handleCopy(viewingQ)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${copied ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                                >
+                                    {copied ? <><Check className="w-4 h-4" /> 복사됨!</> : <><Copy className="w-4 h-4" /> 결과 복사</>}
+                                </button>
+                            </div>
+
+                            {/* 기본 정보 카드 */}
+                            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
+                                <h2 className="text-xl font-black text-gray-900 mb-4">📋 {viewingQ.name}님의 {categoryMap[viewingQ.category]?.label} 문진표</h2>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">이름</p><p className="text-sm font-bold text-gray-900">{viewingQ.name}</p></div>
+                                    <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">성별</p><p className="text-sm font-bold text-gray-900">{viewingQ.gender}</p></div>
+                                    <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">생년월일</p><p className="text-sm font-bold text-gray-900">{viewingQ.birth_date}</p></div>
+                                    <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">제출일</p><p className="text-sm font-bold text-gray-900">{new Date(viewingQ.created_at).toLocaleDateString("ko-KR")}</p></div>
+                                </div>
+                            </div>
+
+                            {/* 성장 문진표 상세 결과 */}
+                            {viewingQ.category === "growth" && (() => {
+                                const r = viewingQ.responses as Record<string, string | string[]>;
+                                return (
+                                    <div className="space-y-4">
+                                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                            <h3 className="text-sm font-black text-deep-blue mb-3">📏 현재 신체 정보</h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="p-3 rounded-xl bg-blue-50/50"><p className="text-[10px] text-gray-400">키</p><p className="text-sm font-bold">{r.height || "-"} cm</p></div>
+                                                <div className="p-3 rounded-xl bg-blue-50/50"><p className="text-[10px] text-gray-400">몸무게</p><p className="text-sm font-bold">{r.weight || "-"} kg</p></div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                            <h3 className="text-sm font-black text-pink-600 mb-3">👶 출생 정보</h3>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                                                <div className="p-3 rounded-xl bg-pink-50/50"><p className="text-[10px] text-gray-400">출생 주수</p><p className="font-bold">{r.birthWeeks || "-"}주 {r.birthDays || "-"}일</p></div>
+                                                <div className="p-3 rounded-xl bg-pink-50/50"><p className="text-[10px] text-gray-400">출생 체중</p><p className="font-bold">{r.birthWeight || "-"} kg</p></div>
+                                                <div className="p-3 rounded-xl bg-pink-50/50"><p className="text-[10px] text-gray-400">출생 키</p><p className="font-bold">{r.birthHeight || "-"} cm</p></div>
+                                                <div className="p-3 rounded-xl bg-pink-50/50"><p className="text-[10px] text-gray-400">두위</p><p className="font-bold">{r.birthHeadCircumference || "-"} cm</p></div>
+                                                <div className="p-3 rounded-xl bg-pink-50/50"><p className="text-[10px] text-gray-400">분만 방법</p><p className="font-bold">{r.deliveryMethod || "-"}</p></div>
+                                                <div className="p-3 rounded-xl bg-pink-50/50"><p className="text-[10px] text-gray-400">둔위 분만</p><p className="font-bold">{r.breechDelivery || "-"}</p></div>
+                                            </div>
+                                            {r.nicuHistory === "예" && (
+                                                <div className="mt-3 p-3 rounded-xl bg-red-50/50"><p className="text-[10px] text-gray-400">신생아 중환자실</p><p className="text-sm font-bold">{r.nicuHistory} — {r.nicuReason || "-"}</p></div>
+                                            )}
+                                        </div>
+                                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                            <h3 className="text-sm font-black text-purple-600 mb-3">👨‍👩‍👦 가족 정보</h3>
+                                            <div className="space-y-3 text-sm">
+                                                <div className="p-3 rounded-xl bg-purple-50/50"><p className="text-[10px] text-gray-400">특이 가족력</p><p className="font-bold">{r.familyHistory || "-"} {r.familyDisease ? `(${r.familyDisease})` : ""}</p></div>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="p-3 rounded-xl bg-purple-50/50"><p className="text-[10px] text-gray-400">👩 엄마 키/몸무게</p><p className="font-bold">{r.motherHeight || "-"}cm / {r.motherWeight || "-"}kg</p></div>
+                                                    <div className="p-3 rounded-xl bg-purple-50/50"><p className="text-[10px] text-gray-400">👨 아빠 키/몸무게</p><p className="font-bold">{r.fatherHeight || "-"}cm / {r.fatherWeight || "-"}kg</p></div>
+                                                </div>
+                                                <div className="p-3 rounded-xl bg-purple-50/50"><p className="text-[10px] text-gray-400">👩 엄마 초경 연령</p><p className="font-bold">{r.motherMenarche || "-"}</p></div>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="p-3 rounded-xl bg-purple-50/50"><p className="text-[10px] text-gray-400">👩 엄마 성장패턴</p><p className="font-bold">작은키: {r.motherShortHeight || "-"} / 마른편: {r.motherThin || "-"}</p></div>
+                                                    <div className="p-3 rounded-xl bg-purple-50/50"><p className="text-[10px] text-gray-400">👨 아빠 성장패턴</p><p className="font-bold">작은키: {r.fatherShortHeight || "-"} / 마른편: {r.fatherThin || "-"}</p></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                            <h3 className="text-sm font-black text-amber-600 mb-3">🩺 2차 성징 및 증상</h3>
+                                            <div className="space-y-3 text-sm">
+                                                <div className="p-3 rounded-xl bg-amber-50/50">
+                                                    <p className="text-[10px] text-gray-400">{viewingQ.gender === "여자" ? "가슴발견 시기" : "고환 크기 증가 발견 시기"}</p>
+                                                    <p className="font-bold">{r.pubertySigns || "-"}</p>
+                                                </div>
+                                                <div className="p-3 rounded-xl bg-amber-50/50">
+                                                    <p className="text-[10px] text-gray-400 mb-2">해당 증상</p>
+                                                    {Array.isArray(r.symptoms) && r.symptoms.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {r.symptoms.map((s: string) => (
+                                                                <span key={s} className="px-2 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-bold">{s}</span>
+                                                            ))}
+                                                        </div>
+                                                    ) : <p className="font-bold">없음</p>}
+                                                </div>
+                                                <div className="p-3 rounded-xl bg-amber-50/50"><p className="text-[10px] text-gray-400">진단 질환/복용약</p><p className="font-bold">{r.diagnosedDiseases || "-"}</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══════ 수정 모달 ═══════ */}
+            <AnimatePresence>
+                {editingQ && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center overflow-y-auto pt-6 pb-16"
+                    >
+                        <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 p-6 sm:p-8 my-4">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-black text-gray-900">✏️ 문진표 수정</h2>
+                                <button onClick={() => setEditingId(null)} className="p-2 rounded-xl hover:bg-gray-100">
+                                    <X className="w-5 h-5 text-gray-400" />
+                                </button>
+                            </div>
+                            <p className="text-sm text-gray-500 mb-6"><strong>{editingQ.name}</strong>님의 {categoryMap[editingQ.category]?.label} 문진표</p>
+
+                            {editingQ.category === "growth" && (() => {
+                                const r = editResponses as Record<string, string | string[]>;
+                                return (
+                                    <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">키 (cm)</label><input type="number" step="0.1" value={r.height as string || ""} onChange={(e) => updateEditResponse("height", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">몸무게 (kg)</label><input type="number" step="0.1" value={r.weight as string || ""} onChange={(e) => updateEditResponse("weight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">출생 주수</label><input type="number" value={r.birthWeeks as string || ""} onChange={(e) => updateEditResponse("birthWeeks", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">출생 일수</label><input type="number" value={r.birthDays as string || ""} onChange={(e) => updateEditResponse("birthDays", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">출생 체중</label><input type="number" step="0.01" value={r.birthWeight as string || ""} onChange={(e) => updateEditResponse("birthWeight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">출생 키</label><input type="number" step="0.1" value={r.birthHeight as string || ""} onChange={(e) => updateEditResponse("birthHeight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">두위</label><input type="number" step="0.1" value={r.birthHeadCircumference as string || ""} onChange={(e) => updateEditResponse("birthHeadCircumference", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        </div>
+                                        <div><label className="block text-xs font-bold text-gray-500 mb-1">분만 방법</label><input type="text" value={r.deliveryMethod as string || ""} onChange={(e) => updateEditResponse("deliveryMethod", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        <div><label className="block text-xs font-bold text-gray-500 mb-1">둔위 분만</label><input type="text" value={r.breechDelivery as string || ""} onChange={(e) => updateEditResponse("breechDelivery", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        <div><label className="block text-xs font-bold text-gray-500 mb-1">신생아 중환자실 입원</label><input type="text" value={r.nicuHistory as string || ""} onChange={(e) => updateEditResponse("nicuHistory", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        <div><label className="block text-xs font-bold text-gray-500 mb-1">입원 이유</label><input type="text" value={r.nicuReason as string || ""} onChange={(e) => updateEditResponse("nicuReason", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">엄마 키 (cm)</label><input type="number" step="0.1" value={r.motherHeight as string || ""} onChange={(e) => updateEditResponse("motherHeight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">엄마 몸무게 (kg)</label><input type="number" step="0.1" value={r.motherWeight as string || ""} onChange={(e) => updateEditResponse("motherWeight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">아빠 키 (cm)</label><input type="number" step="0.1" value={r.fatherHeight as string || ""} onChange={(e) => updateEditResponse("fatherHeight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                            <div><label className="block text-xs font-bold text-gray-500 mb-1">아빠 몸무게 (kg)</label><input type="number" step="0.1" value={r.fatherWeight as string || ""} onChange={(e) => updateEditResponse("fatherWeight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        </div>
+                                        <div><label className="block text-xs font-bold text-gray-500 mb-1">엄마 초경 연령</label><input type="text" value={r.motherMenarche as string || ""} onChange={(e) => updateEditResponse("motherMenarche", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        <div><label className="block text-xs font-bold text-gray-500 mb-1">{editingQ.gender === "여자" ? "가슴발견 시기" : "고환 크기 증가 발견 시기"}</label><input type="text" value={r.pubertySigns as string || ""} onChange={(e) => updateEditResponse("pubertySigns", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        <div><label className="block text-xs font-bold text-gray-500 mb-1">진단 질환/복용약</label><input type="text" value={r.diagnosedDiseases as string || ""} onChange={(e) => updateEditResponse("diagnosedDiseases", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                    </div>
+                                );
+                            })()}
+
+                            <div className="flex gap-3 mt-6">
+                                <button onClick={() => handleSaveEdit(editingQ.id)} className="flex-1 py-3 rounded-xl bg-deep-blue text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-800 transition-colors">
+                                    <Save className="w-4 h-4" /> 저장
+                                </button>
+                                <button onClick={() => setEditingId(null)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-colors">
+                                    취소
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ── 삭제 확인 모달 ── */}
+            {confirmModal && (
+                <div className="fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-6">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center">
+                        <p className="text-base font-bold text-gray-900 mb-6">{confirmModal.message}</p>
+                        <div className="flex gap-3">
+                            <button onClick={confirmModal.onConfirm} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">삭제</button>
+                            <button onClick={() => setConfirmModal(null)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200">취소</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </main>
+    );
+}

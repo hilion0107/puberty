@@ -431,7 +431,7 @@ export default function DevelopmentClinic() {
                                 href="https://short.ddocdoc.com/m8eeg5"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-8 font-bold text-dev-wood-dark shadow-lg transition-transform hover:scale-105"
+                                className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-8 font-bold text-dev-wood-dark shadow-lg border-4 border-[#ac7b53] transition-transform hover:scale-105"
                             >
                                 <Image src="/images/ddocdoc.png" alt="똑닥" width={20} height={20} className="rounded-md" />
                                 초기 평가 예약하기

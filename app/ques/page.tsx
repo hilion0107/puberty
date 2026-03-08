@@ -55,6 +55,7 @@ export default function QuestionnairePage() {
     const [step, setStep] = useState(1);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const [submittedId, setSubmittedId] = useState<number | null>(null); // 제출된 문진표 ID
 
     // Step 1: 기본 정보
     const [name, setName] = useState("");
@@ -111,10 +112,12 @@ export default function QuestionnairePage() {
         setSubmitting(true);
         setError("");
         try {
+            const isEdit = submittedId !== null;
             const res = await fetch("/api/questionnaire", {
-                method: "POST",
+                method: isEdit ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    ...(isEdit ? { id: submittedId } : {}),
                     name,
                     gender,
                     birth_date: birthDate,
@@ -129,6 +132,10 @@ export default function QuestionnairePage() {
                 setSubmitting(false);
                 return;
             }
+            // 최초 제출일 때만 ID 저장
+            if (!isEdit && data.id) {
+                setSubmittedId(data.id);
+            }
             setSubmitting(false);
             setStep(4); // 완료 페이지로 이동
         } catch {
@@ -139,6 +146,7 @@ export default function QuestionnairePage() {
 
     // 다른 문진표 작성: 응답 초기화 후 카테고리 선택(step 2)으로
     const handleNewQuestionnaire = () => {
+        setSubmittedId(null); // ID 초기화 → 다음 제출은 새로 생성
         setCategory("");
         setResponses({
             height: "", weight: "",

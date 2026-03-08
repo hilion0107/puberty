@@ -37,13 +37,13 @@ export async function POST(req: NextRequest) {
             )
         `);
 
-        await db.query(
+        const result = await db.query(
             `INSERT INTO questionnaires (name, gender, birth_date, privacy_consent, category, responses)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
             [name, gender, birth_date, privacy_consent, category, JSON.stringify(responses)]
         );
 
-        return NextResponse.json({ success: true, message: "문진표가 제출되었습니다." });
+        return NextResponse.json({ success: true, message: "문진표가 제출되었습니다.", id: result.rows[0].id });
     } catch (error) {
         console.error("문진표 제출 오류:", error);
         return NextResponse.json({ error: "서버 오류가 발생했습니다." }, { status: 500 });
@@ -92,16 +92,22 @@ export async function DELETE(req: NextRequest) {
     }
 }
 
-// PUT: 문진표 수정 (관리자용)
+// PUT: 문진표 수정 (관리자 또는 환자 본인)
 export async function PUT(req: NextRequest) {
     try {
-        if (!(await isAuthenticated())) {
-            return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
-        }
+        const body = await req.json();
+        const { id, responses, name, gender, birth_date, category, privacy_consent } = body;
 
-        const { id, responses, name, gender, birth_date, category } = await req.json();
         if (!id) {
             return NextResponse.json({ error: "수정할 문진표 ID가 필요합니다." }, { status: 400 });
+        }
+
+        // privacy_consent가 있으면 환자 본인의 제출 직후 수정 (인증 불필요)
+        // 없으면 관리자 수정 (인증 필요)
+        if (privacy_consent === undefined) {
+            if (!(await isAuthenticated())) {
+                return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
+            }
         }
 
         const db = await getDb();

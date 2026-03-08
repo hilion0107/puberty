@@ -101,7 +101,7 @@ function SectionTitle({
 }: {
     icon: React.ElementType;
     title: string;
-    subtitle?: string;
+    subtitle?: React.ReactNode;
 }) {
     return (
         <div className="mb-14 text-center">
@@ -226,7 +226,7 @@ export default function GrowthPage() {
                 <SectionTitle
                     icon={ClipboardList}
                     title="혹시 우리 아이도 검사가 필요할까요?"
-                    subtitle="다음 항목 중 하나라도 해당된다면 전문의와의 상담을 권장합니다."
+                    subtitle={<><span className="block md:inline">다음 항목 중 하나라도 해당된다면</span><span className="block md:inline"> 전문의와의 상담을 권장합니다.</span></>}
                 />
                 <motion.div
                     variants={staggerContainer}
@@ -262,7 +262,7 @@ export default function GrowthPage() {
                 <SectionTitle
                     icon={Brain}
                     title="성장호르몬, 어떤 역할을 하나요?"
-                    subtitle="단순히 키만 키우는 것이 아닌, 신체 전반의 건강한 발달을 돕습니다."
+                    subtitle={<><span className="block md:inline">단순히 키만 키우는 것이 아닌,</span><span className="block md:inline"> 신체 전반의 건강한 발달을 돕습니다.</span></>}
                 />
                 <motion.div
                     variants={staggerContainer}
@@ -449,7 +449,7 @@ export default function GrowthPage() {
                         우리아이 숨은 키 찾기, 지금 시작하세요
                     </h2>
                     <p className="mx-auto mt-4 max-w-xl text-blue-100/90">
-                        성장 치료는 정확한 시기가 수반되어야 최대 효과를 볼 수 있습니다.
+                        <span className="block md:inline">성장 치료는 정확한 시기가 수반되어야 </span><span className="block md:inline">최대 효과를 볼 수 있습니다.</span>
                         <br />    궁금한 사항은 전문가와 상담하세요.
                     </p>
                     <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

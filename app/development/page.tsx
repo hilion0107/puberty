@@ -424,7 +424,7 @@ export default function DevelopmentClinic() {
                             <br />더 이상 혼자 고민하지 마세요.
                         </h2>
                         <p className="mb-10 text-lg text-dev-wood">
-                            아이의 작은 변화를 위한 첫걸음, 전문가와 함께 시작하세요.
+                            <span className="block md:inline">아이의 작은 변화를 위한 첫걸음, </span><span className="block md:inline">전문가와 함께 시작하세요.</span>
                         </p>
                         <div className="flex flex-col justify-center gap-4 sm:flex-row">
                             <a

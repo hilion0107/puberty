@@ -105,7 +105,7 @@ function SectionTitle({
 }: {
   icon: React.ElementType;
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
 }) {
   return (
     <div className="mb-14 text-center">
@@ -211,7 +211,7 @@ export default function Home() {
           >
             <div className="rounded-3xl border border-white/60 bg-white/70 p-6 backdrop-blur-xl md:p-8 shadow-xl">
               <h3 className="mb-4 text-center text-xl font-bold text-gray-900 md:text-2xl">
-                중추성 성조숙증의 원인: <span className="text-deep-blue">성장 지휘본부</span>의 조기 활성화
+                <span className="block md:inline">중추성 성조숙증의 원인: </span><span className="block md:inline"><span className="text-deep-blue">성장 지휘본부</span>의 조기 활성화</span>
               </h3>
               <p className="mb-6 text-center text-sm leading-relaxed text-gray-600 md:text-base font-medium">
                 <strong className="text-deep-blue">시상하부와 뇌하수체</strong>는 우리 몸의 <strong>'성장 지휘본부'</strong>입니다.<br className="hidden md:block" />
@@ -267,7 +267,7 @@ export default function Home() {
                   정확한 진단을 위한 필수 검사
                 </h2>
                 <p className="text-lg text-gray-500">
-                  단일 검사가 아닌, 여러 가지 평가를 종합하여 진단합니다.
+                  <span className="block md:inline">단일 검사가 아닌, </span><span className="block md:inline">여러 가지 평가를 종합하여 진단합니다.</span>
                 </p>
               </div>
 
@@ -557,7 +557,7 @@ export default function Home() {
         <SectionTitle
           icon={ShieldCheck}
           title="치료제, 안심해도 될까요?"
-          subtitle="GnRH agonist는 전 세계적으로 오랜 기간 검증된 안전한 약제입니다."
+          subtitle={<><span className="block md:inline">GnRH agonist는 전 세계적으로 오랜 기간 검증된</span><span className="block md:inline"> 안전한 약제입니다.</span></>}
         />
         <motion.div
           variants={staggerContainer}
@@ -709,7 +709,7 @@ export default function Home() {
         >
           <Heart className="mx-auto mb-6 h-12 w-12 text-deep-blue" />
           <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">
-            아이의 건강한 성장, 함께 지켜드리겠습니다
+            <span className="block md:inline">아이의 건강한 성장, </span><span className="block md:inline">함께 지켜드리겠습니다</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-gray-600 font-medium">
             궁금한 사항이 있으시거나 상담이 필요하시면 언제든지 문의해 주세요.

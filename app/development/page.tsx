@@ -245,7 +245,7 @@ export default function DevelopmentClinic() {
                                     <div>
                                         <h3 className="mb-2 text-xl font-bold text-gray-900">영유아 발달 검사</h3>
                                         <p className="text-gray-600 text-sm leading-relaxed">
-                                            <strong>K-DST</strong> (6개 영역 발달선별검사) 및 <strong>베일리 영유아 발달검사(Bayley Scales)</strong>를 통해 인지, 언어, 운동, 사회정서 등 전반적인 발달 상태를 심층적으로 진단하는 국제 표준 검사입니다.
+                                            <strong>K-DST</strong> (6개 영역 발달선별검사) 및 <strong>베일리 영유아 발달검사(Bayley Scales)</strong>를 통해 인지, 언어, 운동, 사회정서 등 전반적인 발달 상태를 심층적으로 진단하는 표준 검사입니다.
                                         </p>
                                     </div>
                                 </div>
@@ -279,8 +279,8 @@ export default function DevelopmentClinic() {
                             <div className="relative h-64 w-full bg-dev-wood/10 p-6 flex items-center justify-center">
                                 <div className="absolute inset-x-8 -top-12 bottom-0 rounded-t-full overflow-hidden shadow-lg border-4 border-white">
                                     <Image
-                                        src="/images/dev_playroom_wooden_toys.png"
-                                        alt="Warm wooden playroom"
+                                        src="/images/dev_language_therapy.png"
+                                        alt="Child and therapist interacting in a warm playroom"
                                         fill
                                         className="object-cover"
                                     />

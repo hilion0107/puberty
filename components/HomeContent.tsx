@@ -660,7 +660,7 @@ export default function HomeContent({ popups, notices }: { popups: any[], notice
                   </h4>
                 </div>
                 <div className="flex items-center gap-2 text-gray-700 pl-8 font-medium">
-                  <span>노은역 1번 출구 <strong>도보 1분</strong> | <strong>노은역 지하주차장 주차 가능</strong></span>
+                  <span>노은역 3번 출구 <strong>도보 1분</strong> | <strong>노은역 지하주차장/병원 지하주차장 주차 가능</strong></span>
                 </div>
               </motion.div>
 

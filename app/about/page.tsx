@@ -812,7 +812,9 @@ export default function AboutPage() {
                                     <div>
                                         <h3 className="text-xl font-bold text-gray-900 mb-2">병원 주소</h3>
                                         <p className="text-gray-600 leading-relaxed font-medium">
-                                            대전 유성구 노은로 170 스타시티빌딩 6층 우리들소아청소년과
+                                            <span className="block md:inline">대전 유성구 노은로 170 스타시티빌딩 6층</span>
+
+
                                             <br />
                                             <span className="text-deep-blue font-bold inline-block mt-1 bg-blue-50 px-2 py-0.5 rounded text-sm">노은역 3번 출구 도보 1분</span>
                                         </p>
@@ -828,7 +830,7 @@ export default function AboutPage() {
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
                                                 <div className="w-2 h-2 rounded-full bg-deep-blue" />
-                                                <p className="text-gray-700 font-medium">노은역 지하주차장 이용 (30분 무료 주차권 제공)</p>
+                                                <p className="text-gray-700 font-medium"><span className="block md:inline">노은역 지하주차장 이용 </span><span className="block md:inline">(30분 무료 주차권 제공)</span></p>
                                             </div>
                                             <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
                                                 <div className="w-2 h-2 rounded-full bg-emerald-500" />

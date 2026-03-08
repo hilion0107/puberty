@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { motion, AnimatePresence, useMotionValue, useTransform, useAnimation } from "framer-motion";
-import { GraduationCap, Award, Stethoscope, BookOpen, ChevronLeft, ChevronRight, X, Star } from "lucide-react";
+import { GraduationCap, Award, Stethoscope, BookOpen, ChevronLeft, ChevronRight, X, Star, MapPin, Car } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import HoverAccordionGallery from "@/components/HoverAccordionGallery";
+import NaverMap from "@/components/NaverMap";
 
 /* ─── Animation Variants ─── */
 const fadeInUp = {
@@ -769,6 +770,78 @@ export default function AboutPage() {
                     />
                 )}
             </AnimatePresence>
+
+            {/* ═══════ Section: 오시는 길 (Location) ═══════ */}
+            <section className="py-24 md:py-32 bg-gray-50 pb-16">
+                <div className="mx-auto max-w-7xl px-6">
+                    <motion.div
+                        className="text-center mb-16"
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeInUp}
+                    >
+                        <h2 className="text-3xl md:text-5xl font-extrabold text-[#222222] tracking-tight">오시는 길</h2>
+                    </motion.div>
+
+                    <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start justify-center max-w-6xl mx-auto">
+                        <motion.div
+                            className="w-full lg:w-[45%] flex flex-col items-center lg:pt-5"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeInUp}
+                        >
+                            <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-md border-4 border-white ring-1 ring-gray-100 bg-gray-50 z-0">
+                                <NaverMap />
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            className="w-full lg:w-[45%] flex flex-col justify-center space-y-12"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeInUp}
+                        >
+                            <div className="space-y-8">
+                                <div className="flex flex-col sm:flex-row sm:items-start gap-4 p-6 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                    <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                                        <MapPin className="w-6 h-6 text-deep-blue" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">병원 주소</h3>
+                                        <p className="text-gray-600 leading-relaxed font-medium">
+                                            대전 유성구 노은로 170 스타시티빌딩 6층 우리들소아청소년과
+                                            <br />
+                                            <span className="text-deep-blue font-bold inline-block mt-1 bg-blue-50 px-2 py-0.5 rounded text-sm">노은역 3번 출구 도보 1분</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row sm:items-start gap-4 p-6 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                    <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
+                                        <Car className="w-6 h-6 text-rose-500" />
+                                    </div>
+                                    <div className="w-full">
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">주차 안내</h3>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                                <div className="w-2 h-2 rounded-full bg-deep-blue" />
+                                                <p className="text-gray-700 font-medium">노은역 지하주차장 이용 (30분 무료 주차권 제공)</p>
+                                            </div>
+                                            <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                <p className="text-gray-700 font-medium">병원 건물 내 지하 주차장 (무료)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }

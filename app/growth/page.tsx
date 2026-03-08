@@ -59,7 +59,7 @@ const faqData = [
     },
     {
         q: "주사 맞을 때 많이 아픈가요?",
-        a: "최근에는 바늘이 얇고 짧은 펜 타입이나 자동 주사기가 잘 나와 있어 통증이 시원찮습니다. 아이들도 금방 적응하는 경우가 많습니다.",
+        a: "최근에는 바늘이 얇고 짧은 펜 타입이나 자동 주사기가 잘 나와 있어 통증이 심하지 않습니다. 아이들도 금방 적응하는 경우가 많습니다.",
     },
     {
         q: "치료 기간은 얼마나 되나요?",
@@ -173,7 +173,7 @@ export default function GrowthPage() {
                     >
                         <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-growth-orange/10 px-4 py-1.5 text-sm font-bold text-growth-orange">
                             <Sparkles className="h-4 w-4" />
-                            성장호르몬 치료 가이드
+                            성장호르몬 치료
                         </span>
                         <h1 className="mt-4 text-3xl font-extrabold leading-tight text-gray-900 md:text-5xl md:leading-tight">
                             우리 아이 숨은 키 찾기,
@@ -182,7 +182,7 @@ export default function GrowthPage() {
                         </h1>
                         <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gray-600 md:text-lg">
                             저신장증은 치료 시기를 놓치지 않는 것이 가장 중요합니다.
-                            의학적 기준에 맞는 정확한 진단을 통해 맞춤형 성장 플랜을 세워드립니다.
+                            <br />의학적 기준에 맞는 정확한 진단을 통해 맞춤형 성장 플랜을 세워드립니다.
                         </p>
                     </motion.div>
 
@@ -334,7 +334,7 @@ export default function GrowthPage() {
                             <h3 className="mb-3 text-lg font-bold text-gray-900">철저한 모니터링</h3>
                             <p className="text-sm leading-relaxed text-gray-600">
                                 혈당 상승이나 갑상선 기능 저하 등 만약의 부작용을 예방하기 위해
-                                3~6개월 단위로 혈액 검사 및 신체 검진을 꼼꼼하게 진행합니다.
+                                3~6개월 단위로 성장판 검사, 혈액 검사 및 신체 검진을 꼼꼼하게 진행합니다.
                             </p>
                         </motion.div>
                     </div>
@@ -450,15 +450,17 @@ export default function GrowthPage() {
                     </h2>
                     <p className="mx-auto mt-4 max-w-xl text-blue-100/90">
                         성장 치료는 정확한 시기가 수반되어야 최대 효과를 볼 수 있습니다.
-                        궁금한 사항은 전문가와 상담하세요.
+                        <br />    궁금한 사항은 전문가와 상담하세요.
                     </p>
                     <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                         <a
-                            href="#"
+                            href="https://short.ddocdoc.com/m8eeg5"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center gap-2 rounded-2xl bg-growth-orange px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:bg-orange-600"
                         >
-                            <Phone className="h-5 w-5" />
-                            상담 예약하기
+
+                            상담(진료) 예약하기
                         </a>
                         <a
                             href="#"

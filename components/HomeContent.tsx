@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import HomePopup from "@/components/HomePopup";
 import PinnedNoticesCarousel from "@/components/PinnedNoticesCarousel";
+import NaverMap from "@/components/NaverMap";
 
 // SVG Components
 
@@ -576,12 +577,7 @@ export default function HomeContent({ popups, notices }: { popups: any[], notice
               variants={fadeInUp}
             >
               <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-md border-4 border-white ring-1 ring-gray-100 bg-gray-50 z-0">
-                <Image
-                  src="/images/map.png"
-                  alt="오시는 길 지도"
-                  fill
-                  className="object-cover"
-                />
+                <NaverMap />
               </div>
 
               <div className="w-full grid grid-cols-2 gap-3 mt-5">

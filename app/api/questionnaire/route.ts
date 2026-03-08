@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+import { getAuthUser } from "@/lib/auth";
 
 // 관리자 인증 확인 헬퍼
 async function isAuthenticated(): Promise<boolean> {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("admin_token")?.value;
-        if (!token) return false;
-        jwt.verify(token, JWT_SECRET);
-        return true;
-    } catch {
-        return false;
-    }
+    const user = await getAuthUser();
+    return !!user;
 }
 
 // POST: 문진표 제출 (환자용 - 인증 불필요)

@@ -813,9 +813,6 @@ export default function AboutPage() {
                                         <h3 className="text-xl font-bold text-gray-900 mb-2">병원 주소</h3>
                                         <p className="text-gray-600 leading-relaxed font-medium">
                                             <span className="block md:inline">대전 유성구 노은로 170 스타시티빌딩 6층</span>
-
-
-                                            <br />
                                             <span className="text-deep-blue font-bold inline-block mt-1 bg-blue-50 px-2 py-0.5 rounded text-sm">노은역 3번 출구 도보 1분</span>
                                         </p>
                                     </div>

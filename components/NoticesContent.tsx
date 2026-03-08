@@ -56,7 +56,7 @@ export default function NoticesContent({ initialNotices, initialItemsPerPage }: 
                 })
                 .catch(() => setLoading(false));
         } else {
-             setLoading(false);
+            setLoading(false);
         }
     }, [initialNotices]);
 
@@ -169,11 +169,7 @@ export default function NoticesContent({ initialNotices, initialItemsPerPage }: 
                                                                 notice.title
                                                             )}
                                                         </h3>
-                                                        {notice.is_pinned === 1 && (
-                                                            <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 text-[10px] font-bold shrink-0">
-                                                                고정
-                                                            </span>
-                                                        )}
+
                                                         {notice.image_path && (
                                                             <ImageIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                                                         )}

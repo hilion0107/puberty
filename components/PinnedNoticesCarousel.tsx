@@ -217,9 +217,7 @@ export default function PinnedNoticesCarousel({ initialNotices }: PinnedNoticesC
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-3">
                                                         <Pin className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-                                                        <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">
-                                                            고정
-                                                        </span>
+
                                                     </div>
                                                     <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug">
                                                         {currentNotice.title_html &&
@@ -264,9 +262,7 @@ export default function PinnedNoticesCarousel({ initialNotices }: PinnedNoticesC
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-3">
                                                         <Pin className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-                                                        <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">
-                                                            고정
-                                                        </span>
+
                                                     </div>
                                                     <h3 className="text-xl font-bold text-gray-900 mb-2 leading-snug">
                                                         {currentNotice.title_html &&

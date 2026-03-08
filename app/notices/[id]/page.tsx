@@ -88,9 +88,7 @@ export default function NoticeDetailPage() {
                     {notice.is_pinned === 1 && (
                         <div className="flex items-center gap-2 mb-4">
                             <Pin className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
-                                고정된 공지사항
-                            </span>
+
                         </div>
                     )}
 

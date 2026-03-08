@@ -15,7 +15,8 @@ const navData = [
         subMenus: [
             { label: "인사말", href: "/about#greeting" },
             { label: "의료진 소개", href: "/about#staff" },
-            { label: "병원 둘러보기", href: "/about#tour" }
+            { label: "병원 둘러보기", href: "/about#tour" },
+            { label: "오시는 길", href: "/about#location" }
         ]
     },
     {

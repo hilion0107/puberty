@@ -772,7 +772,7 @@ export default function AboutPage() {
             </AnimatePresence>
 
             {/* ═══════ Section: 오시는 길 (Location) ═══════ */}
-            <section className="py-24 md:py-32 bg-gray-50 pb-16">
+            <section id="location" className="py-24 md:py-32 bg-gray-50 pb-16">
                 <div className="mx-auto max-w-7xl px-6">
                     <motion.div
                         className="text-center mb-16"

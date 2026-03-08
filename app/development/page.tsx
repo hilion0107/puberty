@@ -427,14 +427,21 @@ export default function DevelopmentClinic() {
                             아이의 작은 변화를 위한 첫걸음, 전문가와 함께 시작하세요.
                         </p>
                         <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                            <a href="https://short.ddocdoc.com/m8eeg5" target="_blank" rel="noopener noreferrer" className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-8 font-bold text-dev-wood-dark shadow-lg transition-transform hover:scale-105">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                                    <path d="M6 4.5H12C16.142 4.5 19.5 7.858 19.5 12C19.5 16.142 16.142 19.5 12 19.5H6V4.5Z" />
-                                    <path d="M12.5 9.5V14.5M10 12H15" />
-                                </svg>
+                            <a
+                                href="https://short.ddocdoc.com/m8eeg5"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-8 font-bold text-dev-wood-dark shadow-lg transition-transform hover:scale-105"
+                            >
+                                <Image src="/images/ddocdoc.png" alt="똑닥" width={20} height={20} className="rounded-md" />
                                 초기 평가 예약하기
                             </a>
-                            <a href="http://pf.kakao.com/_xczQUG" target="_blank" rel="noopener noreferrer" className="inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-white/20 bg-white/10 px-8 font-bold text-white transition-colors hover:bg-white/20">
+                            <a
+                                href="http://pf.kakao.com/_xczQUG"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-white/20 bg-white/10 px-8 font-bold text-white transition-colors hover:bg-white/20"
+                            >
                                 <MessageCircle className="h-5 w-5" />
                                 카카오채널 간편 상담
                             </a>

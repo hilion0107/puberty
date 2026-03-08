@@ -107,10 +107,10 @@ export default function DevelopmentClinic() {
                         className="mb-16 text-center"
                     >
                         <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-                            우리 아이, 발달 지연을 의심해야 할까요?
+                            우리 아이, <br className="block md:hidden" /> 발달 지연을 의심해야 할까요?
                         </h2>
                         <p className="mt-4 text-lg text-gray-500">
-                            다음 항목 중 해당되는 것이 있다면 편안하게 상담을 받아보세요.
+                            다음 항목 중 해당되는 것이 있다면 <br className="block md:hidden" /> 편안하게 상담을 받아보세요.
                         </p>
                     </motion.div>
 
@@ -313,7 +313,7 @@ export default function DevelopmentClinic() {
                                     />
                                 </div>
                             </div>
-                            <div className="p-8">
+                            <div className="p-8 pt-16 relative z-10">
                                 <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold text-gray-900">
                                     <Puzzle className="h-6 w-6 text-dev-green" /> 감각통합 치료
                                 </h3>

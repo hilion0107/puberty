@@ -12,7 +12,7 @@ export async function GET() {
     try {
         const db = await getDb();
         const { rows: admins } = await db.query(
-            "SELECT id, username, created_at FROM admins ORDER BY created_at ASC"
+            "SELECT id, username, admin_type, created_at FROM admins ORDER BY created_at ASC"
         );
         return NextResponse.json({ admins });
     } catch (error) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { username, password } = await request.json();
+        const { username, password, admin_type = '대표' } = await request.json();
 
         if (!username || !password) {
             return NextResponse.json({ error: "아이디와 비밀번호를 입력해주세요." }, { status: 400 });
@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
 
         const passwordHash = hashPassword(password);
         await db.query(
-            "INSERT INTO admins (username, password_hash) VALUES ($1, $2)",
-            [username, passwordHash]
+            "INSERT INTO admins (username, password_hash, admin_type) VALUES ($1, $2, $3)",
+            [username, passwordHash, admin_type]
         );
 
         return NextResponse.json({ success: true });
@@ -89,6 +89,44 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Users DELETE error:", error);
+    }
+}
+
+// PUT: Update admin (admin only)
+export async function PUT(request: NextRequest) {
+    const user = await getAuthUser();
+    if (!user) {
+        return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
+    }
+
+    try {
+        const { id, password, admin_type } = await request.json();
+
+        if (!id) {
+            return NextResponse.json({ error: "수정할 관리자 ID가 필요합니다." }, { status: 400 });
+        }
+
+        const db = await getDb();
+
+        if (password) {
+            if (password.length < 4) {
+                return NextResponse.json({ error: "비밀번호는 4자 이상이어야 합니다." }, { status: 400 });
+            }
+            const passwordHash = hashPassword(password);
+            await db.query(
+                "UPDATE admins SET password_hash = $1, admin_type = $2 WHERE id = $3",
+                [passwordHash, admin_type || '대표', id]
+            );
+        } else {
+            await db.query(
+                "UPDATE admins SET admin_type = $1 WHERE id = $2",
+                [admin_type || '대표', id]
+            );
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Users PUT error:", error);
         return NextResponse.json({ error: "서버 오류" }, { status: 500 });
     }
 }

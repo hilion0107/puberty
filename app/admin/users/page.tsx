@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, UserPlus, Users as UsersIcon, Shield, Trash2 } from "lucide-react";
+import { ArrowLeft, UserPlus, Users as UsersIcon, Shield, Trash2, Edit2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface Admin {
     id: number;
     username: string;
+    admin_type: string;
     created_at: string;
 }
 
@@ -18,9 +19,15 @@ export default function AdminUsersPage() {
     const [admins, setAdmins] = useState<Admin[]>([]);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [adminType, setAdminType] = useState("대표");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
+    const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null);
+    const [editPassword, setEditPassword] = useState("");
+    const [editConfirmPassword, setEditConfirmPassword] = useState("");
+    const [editAdminType, setEditAdminType] = useState("대표");
 
     useEffect(() => {
         fetch("/api/auth/verify")
@@ -44,11 +51,16 @@ export default function AdminUsersPage() {
         setError("");
         setSuccess("");
 
+        if (password !== confirmPassword) {
+            setError("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
         try {
             const res = await fetch("/api/admin/users", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ username, password, admin_type: adminType }),
             });
             const data = await res.json();
 
@@ -60,6 +72,8 @@ export default function AdminUsersPage() {
             setSuccess("관리자가 추가되었습니다!");
             setUsername("");
             setPassword("");
+            setConfirmPassword("");
+            setAdminType("대표");
             loadAdmins();
         } catch {
             setError("서버 오류가 발생했습니다.");
@@ -88,6 +102,49 @@ export default function AdminUsersPage() {
                 setConfirmModal(null);
             }
         });
+    };
+
+    const handleEditClick = (admin: Admin) => {
+        setEditingAdmin(admin);
+        setEditAdminType(admin.admin_type || "대표");
+        setEditPassword("");
+        setEditConfirmPassword("");
+        setError("");
+        setSuccess("");
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
+
+        if (editPassword && editPassword !== editConfirmPassword) {
+            setError("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/admin/users", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: editingAdmin?.id,
+                    password: editPassword,
+                    admin_type: editAdminType
+                }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setSuccess("관리자 정보가 수정되었습니다.");
+            setEditingAdmin(null);
+            loadAdmins();
+        } catch {
+            setError("서버 오류가 발생했습니다.");
+        }
     };
 
     if (loading) {
@@ -163,6 +220,29 @@ export default function AdminUsersPage() {
                                     minLength={4}
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-600 mb-1">비밀번호 확인</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="비밀번호 확인"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-600 mb-1">관리자 유형</label>
+                                <select
+                                    value={adminType}
+                                    onChange={(e) => setAdminType(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue bg-white"
+                                >
+                                    <option value="대표">대표</option>
+                                    <option value="의사">의사</option>
+                                    <option value="간호">간호</option>
+                                </select>
+                            </div>
                             <button
                                 type="submit"
                                 className="w-full py-3 rounded-xl bg-deep-blue text-white font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
@@ -195,18 +275,32 @@ export default function AdminUsersPage() {
                                         <Shield className="w-4 h-4 text-deep-blue" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold text-gray-800">{admin.username}</p>
-                                        <p className="text-xs text-gray-400">
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm font-bold text-gray-800">{admin.username}</p>
+                                            <span className="px-2 py-0.5 rounded-md bg-blue-100 text-deep-blue text-[10px] font-bold">
+                                                {admin.admin_type || "대표"}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-0.5">
                                             {new Date(admin.created_at).toLocaleDateString("ko-KR")} 가입
                                         </p>
                                     </div>
-                                    <button
-                                        onClick={() => handleDelete(admin.id)}
-                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="관리자 삭제"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            onClick={() => handleEditClick(admin)}
+                                            className="p-2 text-gray-400 hover:text-deep-blue hover:bg-blue-50 rounded-lg transition-colors"
+                                            title="관리자 수정"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(admin.id)}
+                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                            title="관리자 삭제"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -233,6 +327,76 @@ export default function AdminUsersPage() {
                                 취소
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Admin Modal */}
+            {editingAdmin && (
+                <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                <Edit2 className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-800">관리자 계정 수정</h2>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-6">
+                            <strong className="text-gray-900">{editingAdmin.username}</strong> 님의 계정 정보를 수정합니다.
+                        </p>
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-600 mb-1">새 비밀번호 (선택)</label>
+                                <input
+                                    type="password"
+                                    value={editPassword}
+                                    onChange={(e) => setEditPassword(e.target.value)}
+                                    placeholder="변경하려면 입력 (4자 이상)"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
+                                    minLength={4}
+                                />
+                            </div>
+                            {editPassword && (
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-600 mb-1">비밀번호 확인</label>
+                                    <input
+                                        type="password"
+                                        value={editConfirmPassword}
+                                        onChange={(e) => setEditConfirmPassword(e.target.value)}
+                                        placeholder="비밀번호 확인"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
+                                        required
+                                    />
+                                </div>
+                            )}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-600 mb-1">관리자 유형</label>
+                                <select
+                                    value={editAdminType}
+                                    onChange={(e) => setEditAdminType(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue bg-white"
+                                >
+                                    <option value="대표">대표</option>
+                                    <option value="의사">의사</option>
+                                    <option value="간호">간호</option>
+                                </select>
+                            </div>
+                            <div className="flex gap-3 mt-8">
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-3 rounded-xl bg-deep-blue text-white font-bold text-sm hover:bg-blue-800 transition-colors"
+                                >
+                                    저장
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingAdmin(null)}
+                                    className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-colors"
+                                >
+                                    취소
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

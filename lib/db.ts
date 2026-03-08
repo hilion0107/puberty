@@ -28,8 +28,22 @@ async function initializeDb() {
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(255) UNIQUE NOT NULL,
                 password_hash VARCHAR(255) NOT NULL,
+                admin_type VARCHAR(50) DEFAULT '대표',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            -- Add admin_type column to existing admins table if missing
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_name='admins' AND column_name='admin_type'
+                ) THEN
+                    ALTER TABLE admins ADD COLUMN admin_type VARCHAR(50) DEFAULT '대표';
+                END IF;
+            END
+            $$;
 
             CREATE TABLE IF NOT EXISTS notices (
                 id SERIAL PRIMARY KEY,

@@ -174,9 +174,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <span className="mb-4 inline-block rounded-full bg-deep-blue/10 px-4 py-1.5 text-sm font-bold text-deep-blue backdrop-blur">
-                보호자 설명 가이드
-              </span>
+
               <h1 className="mt-4 text-4xl font-extrabold leading-tight text-gray-900 md:text-5xl md:leading-tight">
                 우리 아이의 건강한 성장,
                 <br />
@@ -213,7 +211,7 @@ export default function Home() {
           >
             <div className="rounded-3xl border border-white/60 bg-white/70 p-6 backdrop-blur-xl md:p-8 shadow-xl">
               <h3 className="mb-4 text-center text-xl font-bold text-gray-900 md:text-2xl">
-                성조숙증의 원인: <span className="text-deep-blue">성장 지휘본부</span>의 조기 활성화
+                중추성 성조숙증의 원인: <span className="text-deep-blue">성장 지휘본부</span>의 조기 활성화
               </h3>
               <p className="mb-6 text-center text-sm leading-relaxed text-gray-600 md:text-base font-medium">
                 <strong className="text-deep-blue">시상하부와 뇌하수체</strong>는 우리 몸의 <strong>'성장 지휘본부'</strong>입니다.<br className="hidden md:block" />
@@ -382,7 +380,7 @@ export default function Home() {
                 },
                 {
                   icon: AlertTriangle,
-                  title: "여성암 위험 증가",
+                  title: "여성암 위험 증가 가능성",
                   desc: "여성 호르몬 노출 기간 증가로 관련 암 발병률이 상대적으로 높아집니다.",
                   color: "bg-rose-50 text-rose-500"
                 },
@@ -722,8 +720,8 @@ export default function Home() {
               href="tel:02-000-0000"
               className="flex items-center gap-2 rounded-2xl bg-deep-blue px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:bg-blue-800"
             >
-              <Phone className="h-5 w-5" />
-              전화 상담
+
+              진료 예약
             </a>
             <a
               href="#definition"
@@ -732,21 +730,11 @@ export default function Home() {
               처음부터 다시 보기
             </a>
           </div>
+          <p className="mt-12 text-sm text-gray-400">
+            본 자료는 진료 상담을 대체하지 않습니다.
+          </p>
         </motion.div>
       </section>
-
-      {/* ─── Footer ─── */}
-      <footer className="border-t border-gray-100 bg-white py-8">
-        <div className="mx-auto max-w-6xl px-6 text-center">
-          <p className="text-xs text-gray-400">
-            본 자료는 의료 전문가의 감수를 거쳐 제작되었으며, 진료 상담을 대체하지
-            않습니다.
-          </p>
-          <p className="mt-2 text-xs text-gray-300">
-            © 2025 성조숙증 보호자 가이드. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </main>
   );
 }

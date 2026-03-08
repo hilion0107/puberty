@@ -6,16 +6,19 @@ const pool = new Pool({
 });
 
 let isInitialized = false;
+let initPromise: Promise<void> | null = null;
 
 export async function getDb(): Promise<Pool> {
     if (!isInitialized) {
-        try {
-            await initializeDb();
-            isInitialized = true;
-        } catch (error) {
-            console.error("Database initialization failed:", error);
-            // Don't set isInitialized to true so it can retry
+        if (!initPromise) {
+            initPromise = initializeDb()
+                .then(() => { isInitialized = true; })
+                .catch((error) => {
+                    console.error("Database initialization failed:", error);
+                    initPromise = null; // 재시도할 수 있도록 초기화
+                });
         }
+        await initPromise;
     }
     return pool;
 }

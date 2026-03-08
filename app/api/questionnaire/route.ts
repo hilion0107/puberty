@@ -32,6 +32,21 @@ export async function POST(req: NextRequest) {
         }
 
         const db = await getDb();
+
+        // 테이블 존재 여부 보장 (Vercel 서버리스 환경 대응)
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS questionnaires (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                gender VARCHAR(10) NOT NULL,
+                birth_date VARCHAR(20) NOT NULL,
+                privacy_consent BOOLEAN DEFAULT false,
+                category VARCHAR(50) NOT NULL,
+                responses JSONB NOT NULL DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         await db.query(
             `INSERT INTO questionnaires (name, gender, birth_date, privacy_consent, category, responses)
              VALUES ($1, $2, $3, $4, $5, $6)`,

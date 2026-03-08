@@ -9,7 +9,7 @@ export default function NaverMap() {
     const initMap = () => {
         if (!mapElement.current || !window.naver) return;
 
-        const location = new window.naver.maps.LatLng(36.3741, 127.3178);
+        const location = new window.naver.maps.LatLng(36.3768, 127.3235);
 
         const mapOptions = {
             center: location,

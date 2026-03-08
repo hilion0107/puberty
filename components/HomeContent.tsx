@@ -568,9 +568,9 @@ export default function HomeContent({ popups, notices }: { popups: any[], notice
             <h2 className="text-3xl md:text-5xl font-extrabold text-[#222222] tracking-tight">진료시간 및 오시는 길</h2>
           </motion.div>
 
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start justify-center max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start lg:items-center justify-center max-w-6xl mx-auto lg:pt-6">
             <motion.div
-              className="w-full lg:w-[45%] flex flex-col items-center lg:pt-16"
+              className="w-full lg:w-[45%] flex flex-col items-center"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
@@ -646,7 +646,7 @@ export default function HomeContent({ popups, notices }: { popups: any[], notice
             </motion.div>
 
             <motion.div
-              className="w-full lg:w-[55%] flex flex-col justify-start pt-4 lg:pt-14"
+              className="w-full lg:w-[55%] flex flex-col justify-center pt-4 lg:pt-0"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}

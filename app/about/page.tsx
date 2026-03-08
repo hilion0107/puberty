@@ -248,7 +248,7 @@ const staffData = [
         ],
         highlight: null,
         chop: false,
-        badge: "국가고시 전국 수석",
+        badge: "전문의 국가고시 전국 수석",
         papers: [
             "Effect of adenotonsillar hypertrophy on right ventricle function in children, Korean Journal of Pediatrics",
             "Interstitial deletion of 5q33.3q35.1 in a boy with severe mental retardation, Korean Journal of Pediatrics",
@@ -784,9 +784,9 @@ export default function AboutPage() {
                         <h2 className="text-3xl md:text-5xl font-extrabold text-[#222222] tracking-tight">오시는 길</h2>
                     </motion.div>
 
-                    <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start justify-center max-w-6xl mx-auto">
+                    <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start lg:items-center justify-center max-w-6xl mx-auto">
                         <motion.div
-                            className="w-full lg:w-[45%] flex flex-col items-center lg:pt-5"
+                            className="w-full lg:w-[45%] flex flex-col items-center"
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}

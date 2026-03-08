@@ -80,7 +80,7 @@ export default function Footer() {
             </div>
 
             {/* Bottom Legal Section */}
-            <div className="max-w-7xl mx-auto px-6 mt-4 pt-3 border-t border-gray-200/60 flex flex-col items-center justify-center text-[11px] text-gray-400">
+            <div className="max-w-7xl mx-auto px-6 mt-6 flex flex-col items-center justify-center text-[11px] text-gray-400">
                 <p>Copyright ⓒ 우리들소아청소년과의원 All rights reserved.</p>
             </div>
         </footer>

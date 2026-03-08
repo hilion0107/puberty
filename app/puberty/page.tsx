@@ -717,10 +717,11 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <a
-              href="tel:02-000-0000"
+              href="https://short.ddocdoc.com/m8eeg5"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-2xl bg-deep-blue px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:bg-blue-800"
             >
-
               진료 예약
             </a>
             <a

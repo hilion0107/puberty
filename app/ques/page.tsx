@@ -5,9 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     User, Calendar, ChevronRight, ChevronLeft, CheckCircle2,
     ClipboardList, Heart, Brain, Wind, AlertCircle, Ruler, Weight,
-    Baby, Shield, Stethoscope, Activity
+    Baby, Shield, Stethoscope, Activity, Edit2, FilePlus2, PartyPopper
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 /* ─────────────── 애니메이션 ─────────────── */
 const fadeIn = {
@@ -53,7 +52,6 @@ const privacyText = `[개인정보 수집 및 이용 동의서]
 ※ 본 동의서는 우리들소아청소년과의원 진료 목적으로만 사용됩니다.`;
 
 export default function QuestionnairePage() {
-    const router = useRouter();
     const [step, setStep] = useState(1);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -131,11 +129,29 @@ export default function QuestionnairePage() {
                 setSubmitting(false);
                 return;
             }
-            router.push("/");
+            setSubmitting(false);
+            setStep(4); // 완료 페이지로 이동
         } catch {
             setError("서버 오류가 발생했습니다.");
             setSubmitting(false);
         }
+    };
+
+    // 다른 문진표 작성: 응답 초기화 후 카테고리 선택(step 2)으로
+    const handleNewQuestionnaire = () => {
+        setCategory("");
+        setResponses({
+            height: "", weight: "",
+            birthWeeks: "", birthDays: "", birthWeight: "", birthHeight: "", birthHeadCircumference: "",
+            deliveryMethod: "", breechDelivery: "", nicuHistory: "", nicuReason: "",
+            familyHistory: "", familyDisease: "",
+            motherHeight: "", motherWeight: "", fatherHeight: "", fatherWeight: "",
+            motherMenarche: "", motherShortHeight: "", motherThin: "",
+            fatherShortHeight: "", fatherThin: "",
+            pubertySigns: "", symptoms: [], diagnosedDiseases: "",
+        });
+        setError("");
+        setStep(2);
     };
 
     const canProceedStep1 = name && gender && birthDate && privacyConsent;
@@ -144,31 +160,33 @@ export default function QuestionnairePage() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white font-pretendard pt-24 pb-16">
             <div className="max-w-3xl mx-auto px-4 sm:px-6">
-                {/* ── 진행 표시 ── */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                        {[1, 2, 3].map((s) => (
-                            <div key={s} className="flex items-center gap-2">
-                                <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${step >= s
+                {/* ── 진행 표시 (step 4에서는 숨김) ── */}
+                {step < 4 && (
+                    <div className="mb-8">
+                        <div className="flex items-center justify-center gap-2 mb-4">
+                            {[1, 2, 3].map((s) => (
+                                <div key={s} className="flex items-center gap-2">
+                                    <div
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${step >= s
                                             ? "bg-deep-blue text-white shadow-lg shadow-blue-900/20"
                                             : "bg-gray-200 text-gray-400"
-                                        }`}
-                                >
-                                    {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
+                                            }`}
+                                    >
+                                        {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
+                                    </div>
+                                    {s < 3 && (
+                                        <div className={`w-12 sm:w-20 h-1 rounded-full transition-all duration-300 ${step > s ? "bg-deep-blue" : "bg-gray-200"}`} />
+                                    )}
                                 </div>
-                                {s < 3 && (
-                                    <div className={`w-12 sm:w-20 h-1 rounded-full transition-all duration-300 ${step > s ? "bg-deep-blue" : "bg-gray-200"}`} />
-                                )}
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <p className="text-center text-sm text-gray-400 font-medium">
+                            {step === 1 && "기본 정보 입력"}
+                            {step === 2 && "문진 항목 선택"}
+                            {step === 3 && "상세 문진 작성"}
+                        </p>
                     </div>
-                    <p className="text-center text-sm text-gray-400 font-medium">
-                        {step === 1 && "기본 정보 입력"}
-                        {step === 2 && "문진 항목 선택"}
-                        {step === 3 && "상세 문진 작성"}
-                    </p>
-                </div>
+                )}
 
                 {/* ── 에러 메시지 ── */}
                 {error && (
@@ -216,8 +234,8 @@ export default function QuestionnairePage() {
                                                     type="button"
                                                     onClick={() => setGender(g)}
                                                     className={`py-3.5 rounded-xl text-sm font-bold border-2 transition-all duration-200 ${gender === g
-                                                            ? "border-deep-blue bg-deep-blue/5 text-deep-blue"
-                                                            : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
+                                                        ? "border-deep-blue bg-deep-blue/5 text-deep-blue"
+                                                        : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
                                                         }`}
                                                 >
                                                     {g === "남자" ? "👦 " : "👧 "}{g}
@@ -302,10 +320,10 @@ export default function QuestionnairePage() {
                                                 onClick={() => isAvailable && setCategory(cat.id)}
                                                 disabled={!isAvailable}
                                                 className={`relative group p-5 rounded-2xl border-2 text-left transition-all duration-200 ${isSelected
-                                                        ? "border-deep-blue bg-deep-blue/5 shadow-lg"
-                                                        : isAvailable
-                                                            ? "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
-                                                            : "border-gray-100 bg-gray-50/50 opacity-60 cursor-not-allowed"
+                                                    ? "border-deep-blue bg-deep-blue/5 shadow-lg"
+                                                    : isAvailable
+                                                        ? "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+                                                        : "border-gray-100 bg-gray-50/50 opacity-60 cursor-not-allowed"
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-4">
@@ -654,6 +672,41 @@ export default function QuestionnairePage() {
                                         ) : (
                                             <>제출하기 <CheckCircle2 className="w-4 h-4" /></>
                                         )}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* ═══════ STEP 4: 제출 완료 ═══════ */}
+                    {step === 4 && (
+                        <motion.div key="step4" {...fadeIn}>
+                            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 sm:p-12 text-center">
+                                <div className="mx-auto w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-6">
+                                    <CheckCircle2 className="w-10 h-10 text-green-500" />
+                                </div>
+                                <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3">
+                                    제출 완료
+                                </h1>
+                                <p className="text-base text-gray-500 font-medium leading-relaxed mb-2">
+                                    문진표가 정상적으로 제출되었습니다.
+                                </p>
+                                <p className="text-base text-gray-500 font-medium mb-10">
+                                    감사합니다.
+                                </p>
+
+                                <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                                    <button
+                                        onClick={() => setStep(3)}
+                                        className="flex-1 py-4 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <Edit2 className="w-4 h-4" /> 수정하기
+                                    </button>
+                                    <button
+                                        onClick={handleNewQuestionnaire}
+                                        className="flex-1 py-4 rounded-xl bg-deep-blue text-white font-bold text-sm shadow-lg shadow-blue-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                                    >
+                                        <FilePlus2 className="w-4 h-4" /> 다른 문진표 작성
                                     </button>
                                 </div>
                             </div>

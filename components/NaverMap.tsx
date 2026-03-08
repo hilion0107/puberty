@@ -7,36 +7,53 @@ export default function NaverMap() {
     const mapElement = useRef<HTMLDivElement | null>(null);
 
     const initMap = () => {
-        if (!mapElement.current || !window.naver) return;
+        try {
+            if (!mapElement.current || !window.naver || !window.naver.maps) return;
 
-        const location = new window.naver.maps.LatLng(36.3748, 127.3184);
+            // Prevent duplicate initialization
+            if (mapElement.current.hasChildNodes()) return;
 
-        const mapOptions = {
-            center: location,
-            zoom: 16,
-            minZoom: 10,
-            scaleControl: false,
-            mapDataControl: false,
-            zoomControl: true,
-        };
+            const location = new window.naver.maps.LatLng(36.3748, 127.3184);
 
-        const map = new window.naver.maps.Map(mapElement.current, mapOptions);
+            const mapOptions = {
+                center: location,
+                zoom: 16,
+                minZoom: 10,
+                scaleControl: false,
+                mapDataControl: false,
+                zoomControl: true,
+            };
 
-        new window.naver.maps.Marker({
-            position: location,
-            map,
-            icon: {
-                content: `
-                    <div style="background-color: white; border: 2px solid #3B82F6; border-radius: 20px; padding: 6px 14px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center; transform: translate(-50%, -100%); margin-top: -10px; cursor: pointer;">
-                        <div style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid #3B82F6;"></div>
-                        <div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid white;"></div>
-                        <span style="color: #3B82F6; font-weight: 800; font-size: 14px; white-space: nowrap; font-family: Pretendard, sans-serif;">우리들소아청소년과의원</span>
-                    </div>
-                `,
-                anchor: new window.naver.maps.Point(0, 0),
-            }
-        });
+            const map = new window.naver.maps.Map(mapElement.current, mapOptions);
+
+            new window.naver.maps.Marker({
+                position: location,
+                map,
+                icon: {
+                    content: `
+                        <div style="background-color: white; border: 2px solid #3B82F6; border-radius: 20px; padding: 6px 14px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center; transform: translate(-50%, -100%); margin-top: -10px; cursor: pointer;">
+                            <div style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid #3B82F6;"></div>
+                            <div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid white;"></div>
+                            <span style="color: #3B82F6; font-weight: 800; font-size: 14px; white-space: nowrap; font-family: Pretendard, sans-serif;">우리들소아청소년과의원</span>
+                        </div>
+                    `,
+                    anchor: new window.naver.maps.Point(0, 0),
+                }
+            });
+        } catch (error) {
+            console.error("Naver Map initialization error:", error);
+        }
     };
+
+    // Client-side routing fallback: if script is already loaded
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (window.naver && window.naver.maps) {
+                initMap();
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <>

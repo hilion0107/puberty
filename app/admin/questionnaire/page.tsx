@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getHeightPercentile, getWeightPercentile, getAgeInMonths } from "@/lib/growthPercentile";
 
 interface Questionnaire {
     id: number;
@@ -51,7 +52,10 @@ function formatGrowthResponse(q: Questionnaire): string {
     let text = `[성장 문진표 결과]\n`;
     text += `이름: ${q.name}\n성별: ${q.gender}\n생년월일: ${q.birth_date} (만나이: ${calculateAge(q.birth_date, q.created_at)})\n\n`;
     text += `── 현재 신체 정보 ──\n`;
-    text += `키: ${r.height || "-"}cm / 몸무게: ${r.weight || "-"}kg\n\n`;
+    const ageM = getAgeInMonths(q.birth_date, q.created_at);
+    const hP = getHeightPercentile(parseFloat(r.height as string), ageM, q.gender);
+    const wP = getWeightPercentile(parseFloat(r.weight as string), ageM, q.gender);
+    text += `키: ${r.height || "-"}cm${hP !== null ? `(${hP}백분위)` : ""} / 몸무게: ${r.weight || "-"}kg${wP !== null ? `(${wP}백분위)` : ""}\n\n`;
     text += `── 출생 정보 ──\n`;
     text += `출생 주수: ${r.birthWeeks || "-"}주 ${r.birthDays || "-"}일\n`;
     text += `출생 체중: ${r.birthWeight || "-"}kg / 출생 키: ${r.birthHeight || "-"}cm / 두위: ${r.birthHeadCircumference || "-"}cm\n`;
@@ -295,13 +299,28 @@ export default function QuestionnaireResultsPage() {
                             {/* 성장 문진표 상세 결과 */}
                             {viewingQ.category === "growth" && (() => {
                                 const r = viewingQ.responses as Record<string, string | string[]>;
+                                const ageM = getAgeInMonths(viewingQ.birth_date, viewingQ.created_at);
+                                const hPercentile = getHeightPercentile(parseFloat(r.height as string), ageM, viewingQ.gender);
+                                const wPercentile = getWeightPercentile(parseFloat(r.weight as string), ageM, viewingQ.gender);
                                 return (
                                     <div className="space-y-4">
                                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                                             <h3 className="text-sm font-black text-deep-blue mb-3">📏 현재 신체 정보</h3>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <div className="p-3 rounded-xl bg-blue-50/50"><p className="text-[10px] text-gray-400">키</p><p className="text-sm font-bold">{r.height || "-"} cm</p></div>
-                                                <div className="p-3 rounded-xl bg-blue-50/50"><p className="text-[10px] text-gray-400">몸무게</p><p className="text-sm font-bold">{r.weight || "-"} kg</p></div>
+                                                <div className="p-3 rounded-xl bg-blue-50/50">
+                                                    <p className="text-[10px] text-gray-400">키</p>
+                                                    <p className="text-sm font-bold">
+                                                        {r.height || "-"} cm
+                                                        {hPercentile !== null && <span className="ml-1 text-deep-blue">({hPercentile}백분위)</span>}
+                                                    </p>
+                                                </div>
+                                                <div className="p-3 rounded-xl bg-blue-50/50">
+                                                    <p className="text-[10px] text-gray-400">몸무게</p>
+                                                    <p className="text-sm font-bold">
+                                                        {r.weight || "-"} kg
+                                                        {wPercentile !== null && <span className="ml-1 text-deep-blue">({wPercentile}백분위)</span>}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">

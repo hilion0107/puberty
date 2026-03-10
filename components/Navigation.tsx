@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Calendar, Menu, X } from "lucide-react";
+import { ChevronDown, Calendar, Menu, X, LogOut } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 
 const navData = [
@@ -75,7 +75,29 @@ export default function Navigation() {
     const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+    const [isAdmin, setIsAdmin] = useState(false);
     const pathname = usePathname();
+    const router = useRouter();
+
+    // 관리자 로그인 상태 확인
+    const checkAuth = useCallback(() => {
+        fetch("/api/auth/verify")
+            .then((res) => res.json())
+            .then((data) => setIsAdmin(!!data.authenticated))
+            .catch(() => setIsAdmin(false));
+    }, []);
+
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth, pathname]);
+
+    // 로그아웃 처리
+    const handleLogout = async () => {
+        await fetch("/api/auth/logout", { method: "POST" });
+        setIsAdmin(false);
+        setIsMobileMenuOpen(false);
+        router.push("/");
+    };
 
     // 메뉴 이동 시 모바일 메뉴 자동 닫기
     useEffect(() => {
@@ -213,12 +235,23 @@ export default function Navigation() {
 
                 {/* CTA Buttons */}
                 <div className="hidden md:flex items-center gap-3">
-                    <Link
-                        href="/admin"
-                        className="text-[11px] font-medium text-gray-400 hover:text-deep-blue transition-colors px-2 py-1"
-                    >
-                        관리자
-                    </Link>
+                    <div className="flex flex-col items-center">
+                        <Link
+                            href="/admin"
+                            className="text-[11px] font-medium text-gray-400 hover:text-deep-blue transition-colors px-2 py-1"
+                        >
+                            관리자
+                        </Link>
+                        {isAdmin && (
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-0.5 text-[9px] font-medium text-gray-300 hover:text-red-400 transition-colors -mt-0.5"
+                            >
+                                <LogOut className="w-2.5 h-2.5" />
+                                로그아웃
+                            </button>
+                        )}
+                    </div>
                     <Link
                         href="/clinic#schedule"
                         className="group flex items-center justify-center gap-2 rounded-full bg-deep-blue px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-deep-blue/90 hover:shadow-lg hover:-translate-y-0.5"
@@ -336,6 +369,15 @@ export default function Navigation() {
                                 >
                                     관리자
                                 </Link>
+                                {isAdmin && (
+                                    <button
+                                        onClick={handleLogout}
+                                        className="flex items-center justify-center gap-1 text-[10px] font-medium text-gray-300 hover:text-red-400 transition-colors py-1.5"
+                                    >
+                                        <LogOut className="w-3 h-3" />
+                                        로그아웃
+                                    </button>
+                                )}
                             </div>
                         </motion.div>
                     </div>

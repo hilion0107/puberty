@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import FloatingQuesButton from "../components/FloatingQuesButton";
+import AdminSessionManager from "../components/AdminSessionManager";
 
 export default function RootLayout({
   children,
@@ -35,6 +36,7 @@ export default function RootLayout({
         {children}
         <Footer />
         <FloatingQuesButton />
+        <AdminSessionManager />
       </body>
     </html>
   );

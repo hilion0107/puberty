@@ -387,3 +387,117 @@ export function getAgeInMonths(birthDate: string, submitDate: string): number {
 
     return Math.max(0, months);
 }
+
+/**
+ * 표준정규분포 역함수 (Inverse CDF / Probit function)
+ * 백분위수(0~1)를 Z-score로 변환
+ * Rational approximation (Abramowitz & Stegun 26.2.23)
+ */
+function normalInverseCDF(p: number): number {
+    if (p <= 0) return -6;
+    if (p >= 1) return 6;
+
+    if (p < 0.5) {
+        return -rationalApprox(Math.sqrt(-2.0 * Math.log(p)));
+    } else {
+        return rationalApprox(Math.sqrt(-2.0 * Math.log(1.0 - p)));
+    }
+}
+
+function rationalApprox(t: number): number {
+    const c0 = 2.515517;
+    const c1 = 0.802853;
+    const c2 = 0.010328;
+    const d1 = 1.432788;
+    const d2 = 0.189269;
+    const d3 = 0.001308;
+    return t - (c0 + c1 * t + c2 * t * t) / (1.0 + d1 * t + d2 * t * t + d3 * t * t * t);
+}
+
+/**
+ * Z-score와 LMS 파라미터로 실제 값(키 등)을 역산
+ * value = M * (1 + L * S * Z)^(1/L)  (L ≠ 0)
+ * value = M * exp(S * Z)             (L = 0)
+ */
+function zScoreToValue(z: number, L: number, M: number, S: number): number {
+    if (Math.abs(L) < 0.0001) {
+        return M * Math.exp(S * z);
+    }
+    return M * Math.pow(1 + L * S * z, 1 / L);
+}
+
+/**
+ * 특정 월령, 성별에서 주어진 백분위수에 해당하는 키(cm) 반환
+ * @param percentile 백분위수 (0~100)
+ * @param ageMonths 월령
+ * @param gender "남자" | "여자"
+ * @returns 키 (cm) 또는 null
+ */
+export function getHeightFromPercentile(
+    percentile: number,
+    ageMonths: number,
+    gender: string
+): number | null {
+    if (percentile <= 0 || percentile >= 100) return null;
+
+    const table = gender === "여자" ? HEIGHT_GIRLS : HEIGHT_BOYS;
+    const lms = interpolateLMS(table, ageMonths);
+    if (!lms) return null;
+
+    const [L, M, S] = lms;
+    const z = normalInverseCDF(percentile / 100);
+    const value = zScoreToValue(z, L, M, S);
+
+    return Math.round(value * 10) / 10; // 소수점 1자리
+}
+
+/**
+ * MPH (Mid-Parental Height, 중간부모키) 계산
+ * 남자: (엄마키 + 아빠키) / 2 + 6.5
+ * 여자: (엄마키 + 아빠키) / 2 - 6.5
+ * @returns { mph: 중간부모키, percentile: 18세 기준 백분위수 } 또는 null
+ */
+export function calculateMPH(
+    motherHeight: number,
+    fatherHeight: number,
+    gender: string
+): { mph: number; percentile: number | null } | null {
+    if (!motherHeight || !fatherHeight || motherHeight <= 0 || fatherHeight <= 0) return null;
+
+    const mph = gender === "여자"
+        ? (motherHeight + fatherHeight) / 2 - 6.5
+        : (motherHeight + fatherHeight) / 2 + 6.5;
+
+    const mphRounded = Math.round(mph * 10) / 10;
+    // 성인(18세 = 216개월) 기준 백분위수
+    const percentile = getHeightPercentile(mphRounded, 216, gender);
+
+    return { mph: mphRounded, percentile };
+}
+
+/**
+ * PAH (Predicted Adult Height, 예측 성인키) 계산
+ * 1. 현재 키를 골연령 기준으로 백분위수 계산
+ * 2. 그 백분위수에 해당하는 성인(18세) 키를 반환
+ * @param heightCm 현재 키 (cm)
+ * @param boneAgeMonths 골연령 (개월)
+ * @param gender "남자" | "여자"
+ * @returns { pah: 예측 성인키, percentile: 골연령 기준 백분위수 } 또는 null
+ */
+export function calculatePAH(
+    heightCm: number,
+    boneAgeMonths: number,
+    gender: string
+): { pah: number; percentile: number } | null {
+    if (!heightCm || heightCm <= 0 || boneAgeMonths < 0) return null;
+
+    // 골연령 기준으로 현재 키의 백분위수 계산
+    const baPercentile = getHeightPercentile(heightCm, boneAgeMonths, gender);
+    if (baPercentile === null || baPercentile <= 0 || baPercentile >= 100) return null;
+
+    // 해당 백분위수의 성인(18세) 키
+    const adultHeight = getHeightFromPercentile(baPercentile, 216, gender);
+    if (adultHeight === null) return null;
+
+    return { pah: adultHeight, percentile: baPercentile };
+}

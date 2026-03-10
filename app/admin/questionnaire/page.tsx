@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getHeightPercentile, getWeightPercentile, getAgeInMonths } from "@/lib/growthPercentile";
+import { getHeightPercentile, getWeightPercentile, getAgeInMonths, calculateMPH, calculatePAH } from "@/lib/growthPercentile";
 
 interface Questionnaire {
     id: number;
@@ -55,7 +55,27 @@ function formatGrowthResponse(q: Questionnaire): string {
     const ageM = getAgeInMonths(q.birth_date, q.created_at);
     const hP = getHeightPercentile(parseFloat(r.height as string), ageM, q.gender);
     const wP = getWeightPercentile(parseFloat(r.weight as string), ageM, q.gender);
-    text += `키: ${r.height || "-"}cm${hP !== null ? `(${hP}백분위)` : ""} / 몸무게: ${r.weight || "-"}kg${wP !== null ? `(${wP}백분위)` : ""}\n\n`;
+    text += `키: ${r.height || "-"}cm${hP !== null ? `(${hP}백분위)` : ""} / 몸무게: ${r.weight || "-"}kg${wP !== null ? `(${wP}백분위)` : ""}\n`;
+    // 골연령
+    const baY = r.boneAgeYears as string;
+    const baM = r.boneAgeMonths as string;
+    if (baY || baM) {
+        text += `골연령: ${baY || "0"}세 ${baM || "0"}개월\n`;
+    }
+    // MPH
+    const mphData = calculateMPH(parseFloat(r.motherHeight as string), parseFloat(r.fatherHeight as string), q.gender);
+    if (mphData) {
+        text += `MPH: ${mphData.mph}cm${mphData.percentile !== null ? `(${mphData.percentile}백분위)` : ""}\n`;
+    }
+    // PAH
+    if (baY || baM) {
+        const boneMonths = (parseInt(baY as string) || 0) * 12 + (parseInt(baM as string) || 0);
+        const pahData = calculatePAH(parseFloat(r.height as string), boneMonths, q.gender);
+        if (pahData) {
+            text += `PAH: ${pahData.pah}cm(${pahData.percentile}백분위)\n`;
+        }
+    }
+    text += `\n`;
     text += `── 출생 정보 ──\n`;
     text += `출생 주수: ${r.birthWeeks || "-"}주 ${r.birthDays || "-"}일\n`;
     text += `출생 체중: ${r.birthWeight || "-"}kg / 출생 키: ${r.birthHeight || "-"}cm / 두위: ${r.birthHeadCircumference || "-"}cm\n`;
@@ -323,6 +343,51 @@ export default function QuestionnaireResultsPage() {
                                                 </div>
                                             </div>
                                         </div>
+                                        {/* 골연령 / MPH / PAH */}
+                                        {(() => {
+                                            const motherH = parseFloat(r.motherHeight as string);
+                                            const fatherH = parseFloat(r.fatherHeight as string);
+                                            const baY = r.boneAgeYears as string;
+                                            const baM = r.boneAgeMonths as string;
+                                            const hasBoneAge = !!(baY || baM);
+                                            const boneMonths = hasBoneAge ? (parseInt(baY) || 0) * 12 + (parseInt(baM) || 0) : 0;
+                                            const mphData = calculateMPH(motherH, fatherH, viewingQ.gender);
+                                            const pahData = hasBoneAge ? calculatePAH(parseFloat(r.height as string), boneMonths, viewingQ.gender) : null;
+
+                                            return (hasBoneAge || mphData) ? (
+                                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                                    <h3 className="text-sm font-black text-purple-600 mb-3">🦴 성장 예측</h3>
+                                                    <div className="space-y-3">
+                                                        {hasBoneAge && (
+                                                            <div className="p-3 rounded-xl bg-purple-50/50">
+                                                                <p className="text-[10px] text-gray-400">골연령</p>
+                                                                <p className="text-sm font-bold">{baY || "0"}세 {baM || "0"}개월</p>
+                                                            </div>
+                                                        )}
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            {mphData && (
+                                                                <div className="p-3 rounded-xl bg-purple-50/50">
+                                                                    <p className="text-[10px] text-gray-400">MPH (중간부모키)</p>
+                                                                    <p className="text-sm font-bold">
+                                                                        {mphData.mph}cm
+                                                                        {mphData.percentile !== null && <span className="ml-1 text-purple-600">({mphData.percentile}백분위)</span>}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                            {pahData && (
+                                                                <div className="p-3 rounded-xl bg-purple-50/50">
+                                                                    <p className="text-[10px] text-gray-400">PAH (예측 성인키)</p>
+                                                                    <p className="text-sm font-bold">
+                                                                        {pahData.pah}cm
+                                                                        <span className="ml-1 text-purple-600">({pahData.percentile}백분위)</span>
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : null;
+                                        })()}
                                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                                             <h3 className="text-sm font-black text-pink-600 mb-3">👶 출생 정보</h3>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
@@ -403,6 +468,13 @@ export default function QuestionnaireResultsPage() {
                                         <div className="grid grid-cols-2 gap-3">
                                             <div><label className="block text-xs font-bold text-gray-500 mb-1">키 (cm)</label><input type="number" step="0.1" value={r.height as string || ""} onChange={(e) => updateEditResponse("height", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
                                             <div><label className="block text-xs font-bold text-gray-500 mb-1">몸무게 (kg)</label><input type="number" step="0.1" value={r.weight as string || ""} onChange={(e) => updateEditResponse("weight", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>
+                                        </div>
+                                        <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-100">
+                                            <label className="block text-xs font-bold text-purple-600 mb-2">🦴 골연령 (관리자 입력)</label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div><label className="block text-[10px] text-gray-400 mb-1">세</label><input type="number" min="0" max="20" value={r.boneAgeYears as string || ""} onChange={(e) => updateEditResponse("boneAgeYears", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-purple-200 text-sm" placeholder="예: 9" /></div>
+                                                <div><label className="block text-[10px] text-gray-400 mb-1">개월</label><input type="number" min="0" max="11" value={r.boneAgeMonths as string || ""} onChange={(e) => updateEditResponse("boneAgeMonths", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-purple-200 text-sm" placeholder="예: 3" /></div>
+                                            </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div><label className="block text-xs font-bold text-gray-500 mb-1">출생 주수</label><input type="number" value={r.birthWeeks as string || ""} onChange={(e) => updateEditResponse("birthWeeks", e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm" /></div>

@@ -27,11 +27,29 @@ const categoryMap: Record<string, { label: string; icon: typeof Ruler; color: st
     constipation: { label: "변비", icon: Activity, color: "text-rose-600 bg-rose-50" },
 };
 
+/* ─── 만나이 연/개월수 계산 ─── */
+function calculateAge(birthDate: string, submitDate: string): string {
+    const birth = new Date(birthDate);
+    const submit = new Date(submitDate);
+
+    let monthsDiff = (submit.getFullYear() - birth.getFullYear()) * 12 + (submit.getMonth() - birth.getMonth());
+    if (submit.getDate() < birth.getDate()) {
+        monthsDiff--;
+    }
+
+    if (monthsDiff < 0) return "0세 0개월";
+
+    const years = Math.floor(monthsDiff / 12);
+    const months = monthsDiff % 12;
+
+    return `${years}세 ${months}개월`;
+}
+
 /* ─── 성장 문진표 결과를 텍스트로 변환 ─── */
 function formatGrowthResponse(q: Questionnaire): string {
     const r = q.responses as Record<string, string | string[]>;
     let text = `[성장 문진표 결과]\n`;
-    text += `이름: ${q.name}\n성별: ${q.gender}\n생년월일: ${q.birth_date}\n\n`;
+    text += `이름: ${q.name}\n성별: ${q.gender}\n생년월일: ${q.birth_date} (만나이: ${calculateAge(q.birth_date, q.created_at)})\n\n`;
     text += `── 현재 신체 정보 ──\n`;
     text += `키: ${r.height || "-"}cm / 몸무게: ${r.weight || "-"}kg\n\n`;
     text += `── 출생 정보 ──\n`;
@@ -220,7 +238,7 @@ export default function QuestionnaireResultsPage() {
                                                 {new Date(q.created_at).toLocaleDateString("ko-KR")} {new Date(q.created_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
                                                 <span>·</span>
                                                 <User className="w-3 h-3" />
-                                                {q.birth_date}
+                                                {q.birth_date} ({calculateAge(q.birth_date, q.created_at)})
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-1 shrink-0">
@@ -265,9 +283,10 @@ export default function QuestionnaireResultsPage() {
                             {/* 기본 정보 카드 */}
                             <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 sm:p-8 mb-6">
                                 <h2 className="text-xl font-black text-gray-900 mb-4">📋 {viewingQ.name}님의 {categoryMap[viewingQ.category]?.label} 문진표</h2>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                                     <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">이름</p><p className="text-sm font-bold text-gray-900">{viewingQ.name}</p></div>
                                     <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">성별</p><p className="text-sm font-bold text-gray-900">{viewingQ.gender}</p></div>
+                                    <div className="p-3 rounded-xl bg-blue-50/50"><p className="text-[10px] text-deep-blue font-bold">만나이</p><p className="text-sm font-bold text-deep-blue">{calculateAge(viewingQ.birth_date, viewingQ.created_at)}</p></div>
                                     <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">생년월일</p><p className="text-sm font-bold text-gray-900">{viewingQ.birth_date}</p></div>
                                     <div className="p-3 rounded-xl bg-gray-50"><p className="text-[10px] text-gray-400 font-bold">제출일</p><p className="text-sm font-bold text-gray-900">{new Date(viewingQ.created_at).toLocaleDateString("ko-KR")}</p></div>
                                 </div>

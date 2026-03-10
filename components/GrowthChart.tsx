@@ -17,7 +17,7 @@ interface GrowthChartProps {
 
 // 그래프 레이아웃 상수
 const CHART_WIDTH = 700;
-const CHART_HEIGHT = 440;
+const CHART_HEIGHT = 572;
 const PADDING = { top: 30, right: 30, bottom: 70, left: 55 };
 const PLOT_W = CHART_WIDTH - PADDING.left - PADDING.right;
 const PLOT_H = CHART_HEIGHT - PADDING.top - PADDING.bottom;
@@ -26,15 +26,15 @@ const PLOT_H = CHART_HEIGHT - PADDING.top - PADDING.bottom;
 const AGE_MIN = 36;
 const AGE_MAX = 216;
 
-// 백분위 곡선 스타일
+// 백분위 곡선 스타일 (무지개 색상, 흐리게)
 const CURVE_STYLES: Record<number, { color: string; dash: string; width: number; label: boolean }> = {
-    3: { color: "#CBD5E1", dash: "4,3", width: 1, label: true },
-    10: { color: "#94A3B8", dash: "4,3", width: 1, label: true },
-    25: { color: "#64748B", dash: "2,2", width: 1, label: true },
-    50: { color: "#334155", dash: "", width: 2, label: true },
-    75: { color: "#64748B", dash: "2,2", width: 1, label: true },
-    90: { color: "#94A3B8", dash: "4,3", width: 1, label: true },
-    97: { color: "#CBD5E1", dash: "4,3", width: 1, label: true },
+    3: { color: "rgba(148, 103, 189, 0.45)", dash: "4,3", width: 1.2, label: true },   // 보라
+    10: { color: "rgba(31, 119, 180, 0.45)", dash: "4,3", width: 1.2, label: true },   // 남
+    25: { color: "rgba(44, 160, 44, 0.50)", dash: "2,2", width: 1.2, label: true },   // 초록
+    50: { color: "rgba(214, 39, 40, 0.70)", dash: "", width: 2, label: true },      // 빨간 (중앙값, 더 진하게)
+    75: { color: "rgba(255, 127, 14, 0.50)", dash: "2,2", width: 1.2, label: true },   // 주황
+    90: { color: "rgba(188, 189, 34, 0.50)", dash: "4,3", width: 1.2, label: true },   // 노란
+    97: { color: "rgba(227, 119, 194, 0.45)", dash: "4,3", width: 1.2, label: true },   // 분홍
 };
 
 export default function GrowthChart({ gender, points }: GrowthChartProps) {
@@ -258,10 +258,8 @@ export default function GrowthChart({ gender, points }: GrowthChartProps) {
                         if (cy < PADDING.top || cy > PADDING.top + PLOT_H) return null;
                         return (
                             <g key={`pt-${i}`}>
-                                {/* 흰 테두리 원 */}
-                                <circle cx={cx} cy={cy} r={7} fill="white" stroke={pt.color} strokeWidth={2} />
-                                {/* 채워진 원 */}
-                                <circle cx={cx} cy={cy} r={4} fill={pt.color} />
+                                {/* 데이터 포인트 (테두리 없이 작은 점) */}
+                                <circle cx={cx} cy={cy} r={3.2} fill={pt.color} />
                             </g>
                         );
                     })}

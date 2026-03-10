@@ -501,3 +501,27 @@ export function calculatePAH(
 
     return { pah: adultHeight, percentile: baPercentile };
 }
+
+/**
+ * 성장 그래프용 백분위 곡선 데이터 생성
+ * 3~18세 구간에서 2개월 간격으로 각 백분위수에 해당하는 키를 계산
+ * @param gender "남자" | "여자"
+ * @returns 각 백분위수별 { ageMonths, height }[] 배열
+ */
+export function generatePercentileCurves(gender: string): Record<number, { ageMonths: number; height: number }[]> {
+    const percentiles = [3, 10, 25, 50, 75, 90, 97];
+    const result: Record<number, { ageMonths: number; height: number }[]> = {};
+
+    for (const p of percentiles) {
+        result[p] = [];
+        // 36개월(3세)부터 216개월(18세)까지 2개월 간격
+        for (let m = 36; m <= 216; m += 2) {
+            const h = getHeightFromPercentile(p, m, gender);
+            if (h !== null) {
+                result[p].push({ ageMonths: m, height: h });
+            }
+        }
+    }
+
+    return result;
+}

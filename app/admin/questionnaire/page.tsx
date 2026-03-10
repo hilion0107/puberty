@@ -9,6 +9,7 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getHeightPercentile, getWeightPercentile, getAgeInMonths, calculateMPH, calculatePAH } from "@/lib/growthPercentile";
+import GrowthChart from "@/components/GrowthChart";
 
 interface Questionnaire {
     id: number;
@@ -387,6 +388,42 @@ export default function QuestionnaireResultsPage() {
                                                     </div>
                                                 </div>
                                             ) : null;
+                                        })()}
+                                        {/* 성장 그래프 */}
+                                        {(() => {
+                                            const heightVal = parseFloat(r.height as string);
+                                            const baYStr = r.boneAgeYears as string;
+                                            const baMStr = r.boneAgeMonths as string;
+                                            const hasBa = !!(baYStr || baMStr);
+                                            const boneM = hasBa ? (parseInt(baYStr) || 0) * 12 + (parseInt(baMStr) || 0) : 0;
+                                            const motherH = parseFloat(r.motherHeight as string);
+                                            const fatherH = parseFloat(r.fatherHeight as string);
+                                            const mph = calculateMPH(motherH, fatherH, viewingQ.gender);
+                                            const pah = hasBa ? calculatePAH(heightVal, boneM, viewingQ.gender) : null;
+
+                                            const chartPoints: { ageMonths: number; height: number; label: string; color: string }[] = [];
+
+                                            // 1) 현재 나이 기준 현재 키
+                                            if (heightVal > 0 && ageM >= 36) {
+                                                chartPoints.push({ ageMonths: ageM, height: heightVal, label: "현재 키", color: "#3B82F6" });
+                                            }
+                                            // 2) 골연령 기준 현재 키
+                                            if (heightVal > 0 && hasBa && boneM >= 36) {
+                                                chartPoints.push({ ageMonths: boneM, height: heightVal, label: "골연령 기준", color: "#F97316" });
+                                            }
+                                            // 3) 18세 기준 MPH
+                                            if (mph) {
+                                                chartPoints.push({ ageMonths: 216, height: mph.mph, label: "MPH", color: "#8B5CF6" });
+                                            }
+                                            // 4) 18세 기준 PAH
+                                            if (pah) {
+                                                chartPoints.push({ ageMonths: 216, height: pah.pah, label: "PAH", color: "#10B981" });
+                                            }
+
+                                            if (chartPoints.length > 0) {
+                                                return <GrowthChart gender={viewingQ.gender} points={chartPoints} />;
+                                            }
+                                            return null;
                                         })()}
                                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                                             <h3 className="text-sm font-black text-pink-600 mb-3">👶 출생 정보</h3>

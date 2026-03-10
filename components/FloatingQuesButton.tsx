@@ -43,7 +43,7 @@ export default function FloatingQuesButton() {
             `}</style>
             <Link
                 href="/ques"
-                className="ques-fab fixed bottom-6 right-6 z-40 flex items-center gap-2 px-[14px] py-3.5 rounded-full bg-deep-blue text-white font-bold text-sm shadow-xl shadow-blue-900/30 hover:shadow-2xl hover:-translate-y-1"
+                className="ques-fab fixed bottom-6 right-6 z-40 flex items-center justify-center gap-2 px-[14px] py-3.5 rounded-full bg-deep-blue text-white font-bold text-sm shadow-xl shadow-blue-900/30 hover:shadow-2xl hover:-translate-y-1"
             >
                 <ClipboardList className="ques-fab-icon w-5 h-5" />
                 <span className="ques-fab-label hidden sm:block text-sm font-bold">사전 문진표</span>

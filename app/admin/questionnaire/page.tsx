@@ -532,6 +532,100 @@ export default function QuestionnaireResultsPage() {
                                     </div>
                                 );
                             })()}
+
+                            {/* 알레르기 비염 문진표 상세 결과 */}
+                            {viewingQ.category === "allergy" && (() => {
+                                const r = viewingQ.responses as Record<string, string>;
+                                // 기간 분류: 주 4일 이상 AND 1년 중 4주 이상 지속
+                                const isPersistent = r.allergy_duration_days === "예" && r.allergy_duration_weeks === "예";
+                                const durationText = isPersistent ? "지속성 (Persistent)" : "간헐성 (Intermittent)";
+
+                                // 중증도 분류: 하나라도 "있다" 이면 중등도-중증, 아니면 경증
+                                const hasSevereSymptom = r.allergy_sleep === "있다" || r.allergy_daily_life === "있다" || r.allergy_work_school === "있다" || r.allergy_troublesome === "있다";
+                                const severityText = hasSevereSymptom ? "중등도-중증 (Moderate-Severe)" : "경증 (Mild)";
+
+                                // TNSS 총점
+                                const tnssTotal = (parseInt(r.tnss_congestion) || 0) + (parseInt(r.tnss_runny_nose) || 0) + (parseInt(r.tnss_itching) || 0) + (parseInt(r.tnss_sneezing) || 0);
+                                const isHighTnss = tnssTotal >= 6;
+
+                                // ARIA Step
+                                let ariaStep = "";
+                                let treatmentOptions = [];
+                                if (!isPersistent && !hasSevereSymptom) {
+                                    ariaStep = "Step 1: 경증 간헐성";
+                                    treatmentOptions = ["2세대 경구용 항히스타민제", "국소용 항히스타민제", "비충혈 제거제(단기 사용)"];
+                                } else if (isPersistent && hasSevereSymptom) {
+                                    ariaStep = "Step 3: 중등도-중증 지속성";
+                                    treatmentOptions = ["복합 요법: 비강 내 스테로이드(INS) + 비강 내 항히스타민제", "약물 반응 없을 시 면역요법 고려", "코막힘 극심 시 수술적 치료 고려"];
+                                } else {
+                                    ariaStep = "Step 2: 중등도-중증 간헐성 또는 경증 지속성";
+                                    treatmentOptions = ["비강 내 스테로이드제(INS) (1차 선택제)", "필요시 항히스타민제나 류코트리엔 조절제 병용"];
+                                }
+
+                                return (
+                                    <div className="space-y-4">
+                                        <div className="grid sm:grid-cols-2 gap-4">
+                                            {/* 종합 평가 */}
+                                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                                <h3 className="text-sm font-black text-amber-600 mb-4">📊 ARIA 가이드라인 종합 평가</h3>
+                                                <div className="space-y-4">
+                                                    <div className="p-3 bg-amber-50 rounded-xl">
+                                                        <div className="text-xs text-amber-800 font-bold mb-1">분류형태</div>
+                                                        <div className="text-sm font-black text-gray-900">{durationText} / {severityText}</div>
+                                                    </div>
+                                                    <div className="p-3 bg-gray-50 rounded-xl">
+                                                        <div className="text-xs text-gray-500 font-bold mb-1">TNSS (총 코증상 점수)</div>
+                                                        <div className={`text-xl font-black ${isHighTnss ? "text-red-500" : "text-gray-900"}`}>
+                                                            {tnssTotal}점 <span className="text-sm font-medium text-gray-500">/ 12점</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* 치료 권고 (Step) */}
+                                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                                <h3 className="text-sm font-black text-emerald-600 mb-4">💊 권고 치료 옵션</h3>
+                                                <div className="p-3 bg-emerald-50 rounded-xl mb-3">
+                                                    <div className="text-sm font-black text-emerald-800">{ariaStep}</div>
+                                                </div>
+                                                <ul className="space-y-2 text-sm text-gray-700">
+                                                    {treatmentOptions.map((opt, idx) => (
+                                                        <li key={idx} className="flex gap-2">
+                                                            <span className="text-emerald-500 font-bold">•</span>
+                                                            <span className="font-medium leading-tight">{opt}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {/* 상세 문진 항목 내역 */}
+                                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                                            <h3 className="text-sm font-black text-gray-800 mb-4">📝 문진표 응답 내역</h3>
+                                            <div className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+                                                <div className="space-y-3">
+                                                    <div className="text-xs font-bold text-gray-500 border-b pb-1">기간 및 삶의 질 (최근 3개월)</div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">주 4일 이상 증상:</span><span className="font-bold text-gray-900">{r.allergy_duration_days || "-"}</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">1년 중 4주 이상 지속:</span><span className="font-bold text-gray-900">{r.allergy_duration_weeks || "-"}</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">수면장애:</span><span className="font-bold text-gray-900">{r.allergy_sleep || "-"}</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">일상생활/여가/스포츠 장애:</span><span className="font-bold text-gray-900">{r.allergy_daily_life || "-"}</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">학교/직장생활 어려움:</span><span className="font-bold text-gray-900">{r.allergy_work_school || "-"}</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">매우 불편한 증상:</span><span className="font-bold text-gray-900">{r.allergy_troublesome || "-"}</span></div>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <div className="text-xs font-bold text-gray-500 border-b pb-1">증상 중증도 평가 (0~3점)</div>
+                                                    <div className="flex justify-between text-sm items-center"><span className="text-gray-600">VAS 평가 (주관적 불편감):</span><span className="px-2 py-1 bg-gray-100 rounded-md font-bold text-gray-900">{r.allergy_vas || "0"} / 10</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">코막힘:</span><span className="font-bold text-gray-900">{r.tnss_congestion || "0"}점</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">콧물:</span><span className="font-bold text-gray-900">{r.tnss_runny_nose || "0"}점</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">코 가려움증:</span><span className="font-bold text-gray-900">{r.tnss_itching || "0"}점</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">재채기:</span><span className="font-bold text-gray-900">{r.tnss_sneezing || "0"}점</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-gray-600">눈 증상:</span><span className="font-bold text-gray-900">{r.allergy_eye_symptom || "0"}점</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     </motion.div>
                 )}

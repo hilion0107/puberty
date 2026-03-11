@@ -93,6 +93,19 @@ export default function QuestionnairePage() {
         pubertySigns: "",
         symptoms: [] as string[],
         diagnosedDiseases: "",
+        // 알레르기 비염 문진표 추가 항목
+        allergy_duration_days: "",
+        allergy_duration_weeks: "",
+        allergy_sleep: "",
+        allergy_daily_life: "",
+        allergy_work_school: "",
+        allergy_troublesome: "",
+        allergy_vas: "0",
+        tnss_congestion: "",
+        tnss_runny_nose: "",
+        tnss_itching: "",
+        tnss_sneezing: "",
+        allergy_eye_symptom: "",
     });
 
     const updateResponse = (key: string, value: string | string[]) => {
@@ -157,6 +170,9 @@ export default function QuestionnairePage() {
             motherMenarche: "", motherShortHeight: "", motherThin: "",
             fatherShortHeight: "", fatherThin: "",
             pubertySigns: "", symptoms: [], diagnosedDiseases: "",
+            allergy_duration_days: "", allergy_duration_weeks: "",
+            allergy_sleep: "", allergy_daily_life: "", allergy_work_school: "", allergy_troublesome: "",
+            allergy_vas: "0", tnss_congestion: "", tnss_runny_nose: "", tnss_itching: "", tnss_sneezing: "", allergy_eye_symptom: "",
         });
         setError("");
         setStep(2);
@@ -321,7 +337,7 @@ export default function QuestionnairePage() {
                                 <div className="grid gap-4">
                                     {categories.map((cat) => {
                                         const isSelected = category === cat.id;
-                                        const isAvailable = cat.id === "growth";
+                                        const isAvailable = cat.id === "growth" || cat.id === "allergy";
                                         return (
                                             <button
                                                 key={cat.id}
@@ -656,6 +672,152 @@ export default function QuestionnairePage() {
                                                 className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
                                             />
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* 하단 버튼 */}
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setStep(2)}
+                                        className="flex-1 py-4 rounded-xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" /> 이전
+                                    </button>
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={submitting}
+                                        className="flex-[2] py-4 rounded-xl bg-deep-blue text-white font-bold text-sm shadow-lg shadow-blue-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {submitting ? (
+                                            <span className="flex items-center gap-2">
+                                                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                                                제출 중...
+                                            </span>
+                                        ) : (
+                                            <>제출하기 <CheckCircle2 className="w-4 h-4" /></>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* ═══════ STEP 3: 알레르기 비염 문진표 ═══════ */}
+                    {step === 3 && category === "allergy" && (
+                        <motion.div key="step3_allergy" {...fadeIn}>
+                            <div className="space-y-6">
+                                {/* 작성 기준 */}
+                                <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6 sm:p-8">
+                                    <h2 className="text-xl font-black text-gray-900 text-center mb-6">알레르기 비염 증상 평가지</h2>
+                                    <p className="text-sm text-gray-600 font-medium mb-8">
+                                        * <span className="underline decoration-2 underline-offset-4 decoration-current font-bold">최근 3개월</span> 동안의 <span className="underline decoration-2 underline-offset-4 decoration-current font-bold">비염</span> 상태를 기준으로 작성 부탁드립니다.
+                                    </p>
+
+                                    <div className="space-y-4 mb-8">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <span className="text-sm font-bold text-gray-700">• 증상이 주 4일 이상 있다</span>
+                                            <div className="flex gap-2">
+                                                {["예", "아니오"].map(v => (
+                                                    <button key={v} onClick={() => updateResponse("allergy_duration_days", v)}
+                                                        className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${responses.allergy_duration_days === v ? "border-amber-500 bg-amber-50 text-amber-600" : "border-gray-200 text-gray-400 hover:border-gray-300"}`}
+                                                    >{v}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <span className="text-sm font-bold text-gray-700">• 증상이 1년 중 4주 이상 지속된다</span>
+                                            <div className="flex gap-2">
+                                                {["예", "아니오"].map(v => (
+                                                    <button key={v} onClick={() => updateResponse("allergy_duration_weeks", v)}
+                                                        className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${responses.allergy_duration_weeks === v ? "border-amber-500 bg-amber-50 text-amber-600" : "border-gray-200 text-gray-400 hover:border-gray-300"}`}
+                                                    >{v}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-5">
+                                        {[
+                                            { id: "allergy_sleep", label: "1. 수면장애" },
+                                            { id: "allergy_daily_life", label: "2. 일상생활, 여가, 스포츠 활동의 장애" },
+                                            { id: "allergy_work_school", label: "3. 학교나 직장생활 어려움" },
+                                            { id: "allergy_troublesome", label: "4. 매우 불편한 증상(코막힘, 콧물, 코 가려움증, 재채기 등)" },
+                                        ].map((item) => (
+                                            <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-100 pb-5 last:border-0 last:pb-0">
+                                                <span className="text-sm font-bold text-gray-800">{item.label}</span>
+                                                <div className="flex gap-2 shrink-0">
+                                                    {["없다", "있다"].map(v => (
+                                                        <button key={v} onClick={() => updateResponse(item.id, v)}
+                                                            className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${responses[item.id as keyof typeof responses] === v ? "border-deep-blue bg-deep-blue/5 text-deep-blue" : "border-gray-200 text-gray-400 hover:border-gray-300"}`}
+                                                        >{v}</button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* VAS 평가 */}
+                                <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6 sm:p-8">
+                                    <h3 className="text-lg font-black text-gray-900 mb-6">• VAS 평가</h3>
+                                    <p className="text-sm text-gray-600 font-medium mb-6">알레르기 비염 증상이 어느 정도인가요?</p>
+
+                                    <div className="px-2 sm:px-6 mb-8 mt-24 relative">
+                                        <div className="relative w-full h-3 bg-gray-200 rounded-full">
+                                            <div
+                                                className="absolute top-0 left-0 h-full bg-amber-500 rounded-full transition-all duration-300 pointer-events-none"
+                                                style={{ width: `${(parseInt(responses.allergy_vas as string) || 0) * 10}%` }}
+                                            />
+                                            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                                                <button
+                                                    key={num}
+                                                    type="button"
+                                                    onClick={() => updateResponse("allergy_vas", num.toString())}
+                                                    className="absolute top-1/2 flex flex-col items-center justify-center cursor-pointer group"
+                                                    style={{ left: `${num * 10}%`, transform: 'translate(-50%, -50%)', width: '32px', height: '64px' }}
+                                                >
+                                                    <div className={`w-4 h-4 rounded-full mb-3 ${parseInt(responses.allergy_vas as string) === num ? 'bg-amber-600 ring-4 ring-amber-100 scale-125 shadow-md' : 'bg-gray-300 group-hover:bg-amber-300'} transition-all`} />
+                                                    <span className={`text-sm font-bold ${parseInt(responses.allergy_vas as string) === num ? 'text-amber-600' : 'text-gray-400 group-hover:text-amber-500'} transition-colors`}>{num}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm font-bold text-gray-800 mb-6 mt-10">
+                                        <span className="flex items-center gap-1">증상 없음 <span className="text-xl">😃</span></span>
+                                        <span className="flex items-center gap-1">참을 수 없을 정도 심함 <span className="text-xl">😫</span></span>
+                                    </div>
+                                    <p className="text-center text-sm font-medium text-blue-500 bg-blue-50/50 py-3 rounded-xl mt-4">
+                                        0~10점 중 고르게 증상 없음에는 <strong>(😃)</strong>, 참을 수 없을 정도 심함 <strong>(😫)</strong> 으로 선택해주세요.
+                                    </p>
+                                </div>
+
+                                {/* 증상 점수 (TNSS) */}
+                                <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6 sm:p-8">
+                                    <h3 className="text-lg font-black text-gray-900 text-center mb-2">{"<증상 점수>"}</h3>
+                                    <p className="text-sm text-gray-500 italic text-center mb-8">해당하는 사항에 체크 해주세요</p>
+
+                                    <div className="space-y-6">
+                                        {[
+                                            { id: "tnss_congestion", label: "1. 코막힘", options: ["증상이 전혀 없음", "증상이 조금 있음", "증상이 많이 있음", "증상이 매우 심함"] },
+                                            { id: "tnss_runny_nose", label: "2. 콧물", options: ["증상이 전혀 없음", "증상이 조금 있음", "증상이 많이 있음", "증상이 매우 심함"] },
+                                            { id: "tnss_itching", label: "3. 코 가려움증", options: ["증상이 전혀 없음", "증상이 조금 있음", "증상이 많이 있음", "증상이 매우 심함"] },
+                                            { id: "tnss_sneezing", label: "4. 재채기", options: ["증상이 전혀 없음", "증상이 조금 있음", "증상이 많이 있음", "증상이 매우 심함"] },
+                                            { id: "allergy_eye_symptom", label: "5. 눈 증상", options: ["증상이 전혀 없음", "증상이 조금 있음", "증상이 많이 있음", "증상이 매우 심함"] }
+                                        ].map((item) => (
+                                            <div key={item.id} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-gray-50 pb-6 last:border-0 last:pb-0">
+                                                <span className="text-sm font-bold text-gray-800 shrink-0 w-28">{item.label}:</span>
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
+                                                    {item.options.map((opt, idx) => (
+                                                        <button key={opt} onClick={() => updateResponse(item.id, idx.toString())}
+                                                            className={`py-3 px-2 rounded-xl text-xs font-bold border-2 transition-all ${responses[item.id as keyof typeof responses] === idx.toString() ? "border-amber-500 bg-amber-50 text-amber-600 shadow-sm" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                                                        >
+                                                            <div className="text-lg mb-1">{idx}</div>
+                                                            <div className="leading-tight">{opt}</div>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 

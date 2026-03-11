@@ -97,6 +97,45 @@ function formatGrowthResponse(q: Questionnaire): string {
     return text;
 }
 
+function formatChartCopy(q: Questionnaire): string {
+    const r = q.responses as Record<string, string | string[]>;
+    const cDate = new Date(q.created_at);
+    const dateStr = `${cDate.getFullYear()}-${cDate.getMonth() + 1}-${cDate.getDate()}`;
+
+    const ga = r.birthWeeks ? `${r.birthWeeks}+${r.birthDays || 0}` : "0+0";
+    const bwt = r.birthWeight || "0";
+
+    const ageM = getAgeInMonths(q.birth_date, q.created_at);
+    const hP = getHeightPercentile(parseFloat(r.height as string), ageM, q.gender);
+    const wP = getWeightPercentile(parseFloat(r.weight as string), ageM, q.gender);
+    const htStr = r.height ? `${r.height}cm(${hP !== null ? hP : "-"}P)` : "-";
+    const wtStr = r.weight ? `${r.weight}kg(${wP !== null ? wP : "-"}P)` : "-";
+
+    const yearsCA = Math.floor(ageM / 12);
+    const monthsCA = ageM % 12;
+    const baY = r.boneAgeYears ? parseInt(r.boneAgeYears as string) : null;
+    const baM = r.boneAgeMonths ? parseInt(r.boneAgeMonths as string) : null;
+    let baStr = "";
+    if (baY !== null || baM !== null) {
+        baStr = `BA ${baY || 0}y${baM || 0}m`;
+    }
+
+    const mphData = calculateMPH(parseFloat(r.motherHeight as string), parseFloat(r.fatherHeight as string), q.gender);
+    let mphStr = `MPH: mom ${r.motherHeight || "?"}cm, dad ${r.fatherHeight || "?"}cm`;
+    if (mphData) mphStr += ` -> ${mphData.mph}cm`;
+
+    let pahStr = "PAH: -";
+    if (baY !== null || baM !== null) {
+        const boneMonths = (baY || 0) * 12 + (baM || 0);
+        const pahData = calculatePAH(parseFloat(r.height as string), boneMonths, q.gender);
+        if (pahData) pahStr = `PAH: ${pahData.pah}cm`;
+    }
+
+    const momMenarche = r.motherMenarche || "-";
+
+    return `${dateStr}\nGA: ${ga}wks, Bwt.: ${bwt}kg\nHt.: ${htStr}, Wt.: ${wtStr}\nCA ${yearsCA}y${monthsCA}m  ${baStr}\n${mphStr}\n${pahStr}\n엄마 초경: ${momMenarche}`;
+}
+
 export default function QuestionnaireResultsPage() {
     const router = useRouter();
     const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([]);
@@ -107,6 +146,7 @@ export default function QuestionnaireResultsPage() {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editResponses, setEditResponses] = useState<Record<string, unknown>>({});
     const [copied, setCopied] = useState(false);
+    const [chartCopied, setChartCopied] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
     useEffect(() => {
@@ -152,6 +192,13 @@ export default function QuestionnaireResultsPage() {
         navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleChartCopy = (q: Questionnaire) => {
+        const text = formatChartCopy(q);
+        navigator.clipboard.writeText(text);
+        setChartCopied(true);
+        setTimeout(() => setChartCopied(false), 2000);
     };
 
     const startEdit = (q: Questionnaire) => {
@@ -290,19 +337,27 @@ export default function QuestionnaireResultsPage() {
                 {viewingQ && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm z-50 overflow-y-auto pt-6 pb-16"
+                        className="fixed inset-0 bg-gray-900/95 backdrop-blur-sm z-50 overflow-y-auto pt-6 pb-16"
                     >
                         <div className="max-w-3xl mx-auto px-4 sm:px-6">
                             <div className="flex items-center justify-between mb-6">
                                 <button onClick={() => setViewingId(null)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
                                     <ArrowLeft className="w-5 h-5" /> <span className="text-sm font-bold">목록으로</span>
                                 </button>
-                                <button
-                                    onClick={() => handleCopy(viewingQ)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${copied ? "bg-green-500/20 text-green-400 backdrop-blur-md border border-green-500/30" : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white backdrop-blur-md border border-white/10"}`}
-                                >
-                                    {copied ? <><Check className="w-4 h-4" /> 복사됨!</> : <><Copy className="w-4 h-4" /> 결과 복사</>}
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleChartCopy(viewingQ)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${chartCopied ? "bg-blue-500/20 text-blue-400 backdrop-blur-md border border-blue-500/30" : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white backdrop-blur-md border border-white/10"}`}
+                                    >
+                                        {chartCopied ? <><Check className="w-4 h-4" /> 복사됨!</> : <><Copy className="w-4 h-4" /> 차트 복사</>}
+                                    </button>
+                                    <button
+                                        onClick={() => handleCopy(viewingQ)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${copied ? "bg-green-500/20 text-green-400 backdrop-blur-md border border-green-500/30" : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white backdrop-blur-md border border-white/10"}`}
+                                    >
+                                        {copied ? <><Check className="w-4 h-4" /> 복사됨!</> : <><Copy className="w-4 h-4" /> 결과 복사</>}
+                                    </button>
+                                </div>
                             </div>
 
                             {/* 기본 정보 카드 */}

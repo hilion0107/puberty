@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Lock, User, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,24 @@ export default function AdminLoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [checking, setChecking] = useState(true);
+
+    // 이미 로그인된 상태인지 확인 → 로그인되어 있으면 대시보드로 바로 이동
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await fetch("/api/auth/verify");
+                if (res.ok) {
+                    router.replace("/admin/dashboard");
+                    return;
+                }
+            } catch {
+                // 인증 실패 → 로그인 페이지 표시
+            }
+            setChecking(false);
+        };
+        checkAuth();
+    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,6 +57,15 @@ export default function AdminLoginPage() {
             setLoading(false);
         }
     };
+
+    // 인증 확인 중에는 로딩 화면 표시
+    if (checking) {
+        return (
+            <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white flex items-center justify-center">
+                <div className="animate-spin h-8 w-8 border-4 border-deep-blue/20 border-t-deep-blue rounded-full" />
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white font-pretendard flex items-center justify-center px-4">

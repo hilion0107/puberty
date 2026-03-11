@@ -290,16 +290,16 @@ export default function QuestionnaireResultsPage() {
                 {viewingQ && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-slate-100/90 backdrop-blur-sm z-50 overflow-y-auto pt-6 pb-16"
+                        className="fixed inset-0 bg-gray-900/95 backdrop-blur-sm z-50 overflow-y-auto pt-6 pb-16"
                     >
                         <div className="max-w-3xl mx-auto px-4 sm:px-6">
                             <div className="flex items-center justify-between mb-6">
-                                <button onClick={() => setViewingId(null)} className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                <button onClick={() => setViewingId(null)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
                                     <ArrowLeft className="w-5 h-5" /> <span className="text-sm font-bold">목록으로</span>
                                 </button>
                                 <button
                                     onClick={() => handleCopy(viewingQ)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${copied ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${copied ? "bg-green-500/20 text-green-400 backdrop-blur-md border border-green-500/30" : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white backdrop-blur-md border border-white/10"}`}
                                 >
                                     {copied ? <><Check className="w-4 h-4" /> 복사됨!</> : <><Copy className="w-4 h-4" /> 결과 복사</>}
                                 </button>

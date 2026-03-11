@@ -290,7 +290,7 @@ export default function QuestionnaireResultsPage() {
                 {viewingQ && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-gray-900/95 backdrop-blur-sm z-50 overflow-y-auto pt-6 pb-16"
+                        className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm z-50 overflow-y-auto pt-6 pb-16"
                     >
                         <div className="max-w-3xl mx-auto px-4 sm:px-6">
                             <div className="flex items-center justify-between mb-6">

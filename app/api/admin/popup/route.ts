@@ -14,6 +14,7 @@ interface PopupRow {
     position: string;
     duration_days: number;
     is_active: number;
+    link_url?: string;
     created_at: string;
     updated_at: string;
 }
@@ -23,6 +24,12 @@ export async function GET(request: NextRequest) {
     try {
         const db = await getDb();
         const showAll = request.nextUrl.searchParams.get("all") === "true";
+
+        try {
+            await db.query(`ALTER TABLE popup ADD COLUMN IF NOT EXISTS link_url VARCHAR(1000)`);
+        } catch (e) {
+            console.error("Failed to add link_url column:", e);
+        }
 
         if (showAll) {
             // Admin: return all popups
@@ -37,6 +44,7 @@ export async function GET(request: NextRequest) {
                     position: p.position,
                     durationDays: p.duration_days,
                     isActive: p.is_active === 1,
+                    linkUrl: p.link_url || "",
                     createdAt: p.created_at,
                 })),
             });
@@ -63,6 +71,7 @@ export async function GET(request: NextRequest) {
                 size: p.size,
                 position: p.position,
                 durationDays: p.duration_days,
+                linkUrl: p.link_url || "",
                 expiresAt: new Date(new Date(p.created_at).getTime() + p.duration_days * 24 * 60 * 60 * 1000).toISOString(),
             })),
             // Legacy: single popup for backward compatibility
@@ -74,6 +83,7 @@ export async function GET(request: NextRequest) {
                     size: activePopups[0].size,
                     position: activePopups[0].position,
                     durationDays: activePopups[0].duration_days,
+                    linkUrl: activePopups[0].link_url || "",
                 }
                 : null,
         });
@@ -98,6 +108,7 @@ export async function POST(request: NextRequest) {
         const position = (formData.get("position") as string) || "center";
         const durationDays = parseInt((formData.get("durationDays") as string) || "7");
         const isActive = formData.get("isActive") === "true" ? 1 : 0;
+        const linkUrl = (formData.get("linkUrl") as string) || "";
         const addToNotice = formData.get("addToNotice") === "true";
         const editId = formData.get("editId") as string | null;
 
@@ -110,17 +121,23 @@ export async function POST(request: NextRequest) {
 
         const db = await getDb();
 
+        try {
+            await db.query(`ALTER TABLE popup ADD COLUMN IF NOT EXISTS link_url VARCHAR(1000)`);
+        } catch (e) {
+            console.error("Failed to add link_url column:", e);
+        }
+
         if (editId) {
             // Update existing popup
             await db.query(
-                "UPDATE popup SET title = $1, image_path = $2, size = $3, position = $4, duration_days = $5, is_active = $6, updated_at = CURRENT_TIMESTAMP WHERE id = $7",
-                [title, imagePath, size, position, durationDays, isActive, editId]
+                "UPDATE popup SET title = $1, image_path = $2, size = $3, position = $4, duration_days = $5, is_active = $6, link_url = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8",
+                [title, imagePath, size, position, durationDays, isActive, linkUrl, editId]
             );
         } else {
             // Insert new popup
             await db.query(
-                "INSERT INTO popup (title, image_path, size, position, duration_days, is_active) VALUES ($1, $2, $3, $4, $5, $6)",
-                [title, imagePath, size, position, durationDays, isActive]
+                "INSERT INTO popup (title, image_path, size, position, duration_days, is_active, link_url) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                [title, imagePath, size, position, durationDays, isActive, linkUrl]
             );
         }
 

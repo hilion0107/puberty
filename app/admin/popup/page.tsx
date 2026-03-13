@@ -42,6 +42,7 @@ interface PopupItem {
     position: string;
     durationDays: number;
     isActive: boolean;
+    linkUrl: string;
     createdAt: string;
 }
 
@@ -68,6 +69,7 @@ export default function AdminPopupPage() {
     const [position, setPosition] = useState("center");
     const [durationDays, setDurationDays] = useState(7);
     const [isActive, setIsActive] = useState(true);
+    const [linkUrl, setLinkUrl] = useState("");
     const [addToNotice, setAddToNotice] = useState(false);
 
     const loadPopups = useCallback(async () => {
@@ -102,6 +104,7 @@ export default function AdminPopupPage() {
         setPosition("center");
         setDurationDays(7);
         setIsActive(true);
+        setLinkUrl("");
         setAddToNotice(false);
         setEditingId(null);
     };
@@ -114,6 +117,7 @@ export default function AdminPopupPage() {
         setPosition(popup.position);
         setDurationDays(popup.durationDays);
         setIsActive(popup.isActive);
+        setLinkUrl(popup.linkUrl || "");
         setAddToNotice(false);
         setEditingId(popup.id);
         setShowForm(true);
@@ -153,6 +157,7 @@ export default function AdminPopupPage() {
             formData.append("position", position);
             formData.append("durationDays", String(durationDays));
             formData.append("isActive", String(isActive));
+            formData.append("linkUrl", linkUrl);
             formData.append("addToNotice", String(addToNotice));
             if (editingId) formData.append("editId", String(editingId));
 
@@ -237,7 +242,7 @@ export default function AdminPopupPage() {
                         <h1 className="text-2xl font-black text-gray-900">팝업 설정</h1>
                     </div>
                     <button
-                        onClick={() => { resetForm(); setShowForm(true); }}
+                        onClick={() => { resetForm(); setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-deep-blue text-white font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
                     >
                         <Plus className="w-4 h-4" />
@@ -274,6 +279,17 @@ export default function AdminPopupPage() {
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
                                             placeholder="팝업 제목을 입력하세요"
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
+                                        />
+                                    </div>
+                                    {/* Link URL */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-600 mb-1">연결 링크 (URL)</label>
+                                        <input
+                                            type="url"
+                                            value={linkUrl}
+                                            onChange={(e) => setLinkUrl(e.target.value)}
+                                            placeholder="클릭 시 이동할 주소 (예: https://...)"
                                             className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
                                         />
                                     </div>
@@ -417,6 +433,7 @@ export default function AdminPopupPage() {
                                             position,
                                             durationDays,
                                             isActive,
+                                            linkUrl,
                                             createdAt: "",
                                         });
                                         setShowPreview(true);

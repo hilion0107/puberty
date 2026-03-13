@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, UserPlus, Users as UsersIcon, Shield, Trash2, Edit2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AdminSessionMonitor from "@/components/AdminSessionMonitor";
 
 interface Admin {
     id: number;
@@ -21,6 +22,7 @@ export default function AdminUsersPage() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [adminType, setAdminType] = useState("대표");
+    const [autoLogoutMinutes, setAutoLogoutMinutes] = useState(60);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
@@ -28,13 +30,24 @@ export default function AdminUsersPage() {
     const [editPassword, setEditPassword] = useState("");
     const [editConfirmPassword, setEditConfirmPassword] = useState("");
     const [editAdminType, setEditAdminType] = useState("대표");
+    const [editAutoLogoutMinutes, setEditAutoLogoutMinutes] = useState(60);
+    const [user, setUser] = useState<{ username: string; autoLogoutMinutes?: number } | null>(null);
+
+    // [보안 플러그인] 영문 소문자, 숫자, 특수문자를 포함한 8자 이상 비밀번호 검증 함수
+    const isValidPassword = (pw: string) => {
+        const regex = /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`\-={}[\]:;"'<>,.?/]).{8,}$/;
+        return regex.test(pw);
+    };
 
     useEffect(() => {
         fetch("/api/auth/verify")
             .then((res) => res.json())
             .then((data) => {
                 if (!data.authenticated) router.push("/admin");
-                else loadAdmins();
+                else {
+                    setUser(data.user);
+                    loadAdmins();
+                }
             })
             .catch(() => router.push("/admin"));
     }, [router]);
@@ -56,11 +69,16 @@ export default function AdminUsersPage() {
             return;
         }
 
+        if (!isValidPassword(password)) {
+            setError("비밀번호는 영문 소문자, 숫자, 특수문자를 포함하여 8자 이상이어야 합니다.");
+            return;
+        }
+
         try {
             const res = await fetch("/api/admin/users", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password, admin_type: adminType }),
+                body: JSON.stringify({ username, password, admin_type: adminType, auto_logout_minutes: autoLogoutMinutes }),
             });
             const data = await res.json();
 
@@ -74,6 +92,7 @@ export default function AdminUsersPage() {
             setPassword("");
             setConfirmPassword("");
             setAdminType("대표");
+            setAutoLogoutMinutes(60);
             loadAdmins();
         } catch {
             setError("서버 오류가 발생했습니다.");
@@ -104,9 +123,10 @@ export default function AdminUsersPage() {
         });
     };
 
-    const handleEditClick = (admin: Admin) => {
+    const handleEditClick = (admin: Admin & { auto_logout_minutes?: number }) => {
         setEditingAdmin(admin);
         setEditAdminType(admin.admin_type || "대표");
+        setEditAutoLogoutMinutes(admin.auto_logout_minutes || 60);
         setEditPassword("");
         setEditConfirmPassword("");
         setError("");
@@ -117,9 +137,15 @@ export default function AdminUsersPage() {
         e.preventDefault();
         setError("");
 
-        if (editPassword && editPassword !== editConfirmPassword) {
-            setError("비밀번호가 일치하지 않습니다.");
-            return;
+        if (editPassword) {
+            if (editPassword !== editConfirmPassword) {
+                setError("비밀번호가 일치하지 않습니다.");
+                return;
+            }
+            if (!isValidPassword(editPassword)) {
+                setError("새 비밀번호는 영문 소문자, 숫자, 특수문자를 포함하여 8자 이상이어야 합니다.");
+                return;
+            }
         }
 
         try {
@@ -129,7 +155,8 @@ export default function AdminUsersPage() {
                 body: JSON.stringify({
                     id: editingAdmin?.id,
                     password: editPassword,
-                    admin_type: editAdminType
+                    admin_type: editAdminType,
+                    auto_logout_minutes: editAutoLogoutMinutes
                 }),
             });
             const data = await res.json();
@@ -156,6 +183,8 @@ export default function AdminUsersPage() {
     }
 
     return (
+        <>
+        {user && user.autoLogoutMinutes && <AdminSessionMonitor autoLogoutMinutes={user.autoLogoutMinutes} />}
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
             <div className="max-w-3xl mx-auto px-6">
                 {/* Header */}
@@ -214,10 +243,9 @@ export default function AdminUsersPage() {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="비밀번호 (4자 이상)"
+                                    placeholder="영문, 숫자, 특수문자 조합 8자 이상"
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
                                     required
-                                    minLength={4}
                                 />
                             </div>
                             <div>
@@ -242,6 +270,21 @@ export default function AdminUsersPage() {
                                     <option value="의사">의사</option>
                                     <option value="간호">간호</option>
                                 </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-600 mb-1">자동 로그아웃 설정 (분)</label>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="range"
+                                        min="3"
+                                        max="60"
+                                        value={autoLogoutMinutes}
+                                        onChange={(e) => setAutoLogoutMinutes(parseInt(e.target.value))}
+                                        className="flex-1 accent-deep-blue"
+                                    />
+                                    <span className="w-12 text-center text-sm font-bold text-gray-700">{autoLogoutMinutes}분</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1">지정된 시간 동안 마우스나 키보드 조작이 없으면 자동으로 접속이 차단됩니다.</p>
                             </div>
                             <button
                                 type="submit"
@@ -351,9 +394,8 @@ export default function AdminUsersPage() {
                                     type="password"
                                     value={editPassword}
                                     onChange={(e) => setEditPassword(e.target.value)}
-                                    placeholder="변경하려면 입력 (4자 이상)"
+                                    placeholder="변경하려면 입력 (영문+숫자+특수문자 8자 이상)"
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-deep-blue/20 focus:border-deep-blue"
-                                    minLength={4}
                                 />
                             </div>
                             {editPassword && (
@@ -381,6 +423,20 @@ export default function AdminUsersPage() {
                                     <option value="간호">간호</option>
                                 </select>
                             </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-600 mb-1">자동 로그아웃 설정 (분)</label>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="range"
+                                        min="3"
+                                        max="60"
+                                        value={editAutoLogoutMinutes}
+                                        onChange={(e) => setEditAutoLogoutMinutes(parseInt(e.target.value))}
+                                        className="flex-1 accent-blue-600"
+                                    />
+                                    <span className="w-12 text-center text-sm font-bold text-gray-700">{editAutoLogoutMinutes}분</span>
+                                </div>
+                            </div>
                             <div className="flex gap-3 mt-8">
                                 <button
                                     type="submit"
@@ -401,5 +457,6 @@ export default function AdminUsersPage() {
                 </div>
             )}
         </main>
+        </>
     );
 }

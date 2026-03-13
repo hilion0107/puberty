@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
             "SELECT * FROM admins WHERE username = $1",
             [username]
         );
-        const admin = result.rows[0] as { id: number; username: string; password_hash: string } | undefined;
+        const admin = result.rows[0] as { id: number; username: string; password_hash: string; auto_logout_minutes?: number } | undefined;
 
         if (!admin || !comparePassword(password, admin.password_hash)) {
             return NextResponse.json(
@@ -27,11 +27,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const token = signToken(admin.id, admin.username);
+        const autoLogoutMinutes = admin.auto_logout_minutes || 60;
+        const token = signToken(admin.id, admin.username, autoLogoutMinutes);
 
         const response = NextResponse.json({
             success: true,
-            user: { id: admin.id, username: admin.username },
+            user: { id: admin.id, username: admin.username, autoLogoutMinutes: autoLogoutMinutes },
         });
 
         response.cookies.set(COOKIE_NAME, token, {

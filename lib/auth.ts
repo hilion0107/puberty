@@ -9,10 +9,11 @@ const COOKIE_NAME = "admin_token";
 export interface TokenPayload {
     userId: number;
     username: string;
+    autoLogoutMinutes: number;
 }
 
-export function signToken(userId: number, username: string): string {
-    return jwt.sign({ userId, username } as TokenPayload, JWT_SECRET, {
+export function signToken(userId: number, username: string, autoLogoutMinutes: number): string {
+    return jwt.sign({ userId, username, autoLogoutMinutes } as TokenPayload, JWT_SECRET, {
         expiresIn: TOKEN_EXPIRY,
     });
 }

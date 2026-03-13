@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AdminSessionMonitor from "@/components/AdminSessionMonitor";
 import Image from "next/image";
 
 interface Notice {
@@ -34,6 +35,7 @@ export default function AdminNoticesPage() {
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [title, setTitle] = useState("");
+    const [user, setUser] = useState<{ username: string; autoLogoutMinutes?: number } | null>(null);
     const [linkUrl, setLinkUrl] = useState("");
     const [isPinned, setIsPinned] = useState(false);
     const [imagePath, setImagePath] = useState("");
@@ -55,6 +57,7 @@ export default function AdminNoticesPage() {
             .then((data) => {
                 if (!data.authenticated) router.push("/admin");
                 else {
+                    setUser(data.user);
                     loadNotices();
                     loadSettings();
                 }
@@ -224,6 +227,8 @@ export default function AdminNoticesPage() {
     }
 
     return (
+        <>
+        {user && user.autoLogoutMinutes && <AdminSessionMonitor autoLogoutMinutes={user.autoLogoutMinutes} />}
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
             <div className="max-w-4xl mx-auto px-6">
                 {/* Header */}
@@ -754,5 +759,6 @@ export default function AdminNoticesPage() {
                 </div>
             )}
         </main>
+        </>
     );
 }

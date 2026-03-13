@@ -102,12 +102,10 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ error: "수정할 문진표 ID가 필요합니다." }, { status: 400 });
         }
 
-        // privacy_consent가 있으면 환자 본인의 제출 직후 수정 (인증 불필요)
-        // 없으면 관리자 수정 (인증 필요)
-        if (privacy_consent === undefined) {
-            if (!(await isAuthenticated())) {
-                return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
-            }
+        // 보안 패치: 환자의 수정 권리(privacy_consent 파라미터 기반 우회 로직) 제거
+        // 오직 인증된 관리자만 문진표 데이터를 수정/업데이트할 수 있음
+        if (!(await isAuthenticated())) {
+            return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
         }
 
         const db = await getDb();

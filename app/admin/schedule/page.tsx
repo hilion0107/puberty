@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AdminSessionMonitor from "@/components/AdminSessionMonitor";
 import Image from "next/image";
 
 /* ─── Types ─── */
@@ -122,6 +123,7 @@ export default function AdminSchedulePage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [analyzing, setAnalyzing] = useState(false);
+    const [user, setUser] = useState<{ username: string; autoLogoutMinutes?: number } | null>(null);
 
     // Year/Month
     const now = new Date();
@@ -173,6 +175,7 @@ export default function AdminSchedulePage() {
             .then((data) => {
                 if (!data.authenticated) router.push("/admin");
                 else {
+                    setUser(data.user);
                     // Load doctors
                     fetch("/api/admin/doctors")
                         .then((r) => r.json())
@@ -362,8 +365,10 @@ export default function AdminSchedulePage() {
     }
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
-            <div className="max-w-6xl mx-auto px-6">
+        <>
+            {user && user.autoLogoutMinutes && <AdminSessionMonitor autoLogoutMinutes={user.autoLogoutMinutes} />}
+            <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
+                <div className="max-w-6xl mx-auto px-6">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -884,10 +889,20 @@ export default function AdminSchedulePage() {
                 </div>
             )}
         </main>
+        </>
     );
 }
 
 /* ─── Cell Editor Component ─── */
+interface CellEditorProps {
+    value: string;
+    doctors: Doctor[];
+    isEditing: boolean;
+    onStartEdit: () => void;
+    onChange: (v: string) => void;
+    onCancel: () => void;
+}
+
 function CellEditor({
     value,
     doctors,
@@ -895,14 +910,7 @@ function CellEditor({
     onStartEdit,
     onChange,
     onCancel,
-}: {
-    value: string;
-    doctors: Doctor[];
-    isEditing: boolean;
-    onStartEdit: () => void;
-    onChange: (v: string) => void;
-    onCancel: () => void;
-}) {
+}: CellEditorProps) {
     const [localAbbrs, setLocalAbbrs] = useState<string[]>([]);
 
     useEffect(() => {

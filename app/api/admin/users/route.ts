@@ -12,7 +12,7 @@ export async function GET() {
     try {
         const db = await getDb();
         const { rows: admins } = await db.query(
-            "SELECT id, username, admin_type, created_at FROM admins ORDER BY created_at ASC"
+            "SELECT id, username, admin_type, auto_logout_minutes, created_at FROM admins ORDER BY created_at ASC"
         );
         return NextResponse.json({ admins });
     } catch (error) {
@@ -29,15 +29,18 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { username, password, admin_type = '대표' } = await request.json();
+        const { username, password, admin_type = '대표', auto_logout_minutes = 60 } = await request.json();
 
         if (!username || !password) {
             return NextResponse.json({ error: "아이디와 비밀번호를 입력해주세요." }, { status: 400 });
         }
 
-        if (password.length < 4) {
-            return NextResponse.json({ error: "비밀번호는 4자 이상이어야 합니다." }, { status: 400 });
+        const passwordRegex = /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`\-={}[\]:;"'<>,.?/]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return NextResponse.json({ error: "비밀번호는 영문 소문자, 숫자, 특수문자를 포함하여 8자 이상이어야 합니다." }, { status: 400 });
         }
+
+        const logoutMinutes = Math.max(3, Math.min(60, Number(auto_logout_minutes)));
 
         const db = await getDb();
         const existingResult = await db.query(
@@ -50,8 +53,8 @@ export async function POST(request: NextRequest) {
 
         const passwordHash = hashPassword(password);
         await db.query(
-            "INSERT INTO admins (username, password_hash, admin_type) VALUES ($1, $2, $3)",
-            [username, passwordHash, admin_type]
+            "INSERT INTO admins (username, password_hash, admin_type, auto_logout_minutes) VALUES ($1, $2, $3, $4)",
+            [username, passwordHash, admin_type, logoutMinutes]
         );
 
         return NextResponse.json({ success: true });
@@ -100,27 +103,30 @@ export async function PUT(request: NextRequest) {
     }
 
     try {
-        const { id, password, admin_type } = await request.json();
+        const { id, password, admin_type, auto_logout_minutes = 60 } = await request.json();
 
         if (!id) {
             return NextResponse.json({ error: "수정할 관리자 ID가 필요합니다." }, { status: 400 });
         }
 
+        const logoutMinutes = Math.max(3, Math.min(60, Number(auto_logout_minutes)));
         const db = await getDb();
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+~`\-={}[\]:;"'<>,.?/]).{8,}$/;
+
         if (password) {
-            if (password.length < 4) {
-                return NextResponse.json({ error: "비밀번호는 4자 이상이어야 합니다." }, { status: 400 });
+            if (!passwordRegex.test(password)) {
+                return NextResponse.json({ error: "비밀번호는 영문 소문자, 숫자, 특수문자를 포함하여 8자 이상이어야 합니다." }, { status: 400 });
             }
             const passwordHash = hashPassword(password);
             await db.query(
-                "UPDATE admins SET password_hash = $1, admin_type = $2 WHERE id = $3",
-                [passwordHash, admin_type || '대표', id]
+                "UPDATE admins SET password_hash = $1, admin_type = $2, auto_logout_minutes = $3 WHERE id = $4",
+                [passwordHash, admin_type || '대표', logoutMinutes, id]
             );
         } else {
             await db.query(
-                "UPDATE admins SET admin_type = $1 WHERE id = $2",
-                [admin_type || '대표', id]
+                "UPDATE admins SET admin_type = $1, auto_logout_minutes = $2 WHERE id = $3",
+                [admin_type || '대표', logoutMinutes, id]
             );
         }
 

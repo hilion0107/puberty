@@ -6,6 +6,7 @@ import { ArrowLeft, Upload, Save, Eye, Plus, Pencil, Trash2, X, GripVertical } f
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import AdminSessionMonitor from "@/components/AdminSessionMonitor";
 
 const SIZE_OPTIONS = [
     { label: "전체 (1)", value: "1" },
@@ -50,6 +51,7 @@ export default function AdminPopupPage() {
     const dropZoneRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [user, setUser] = useState<{ username: string; autoLogoutMinutes?: number } | null>(null);
     const [popups, setPopups] = useState<PopupItem[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -84,7 +86,10 @@ export default function AdminPopupPage() {
             .then((res) => res.json())
             .then((data) => {
                 if (!data.authenticated) router.push("/admin");
-                else loadPopups();
+                else {
+                    setUser(data.user);
+                    loadPopups();
+                }
             })
             .catch(() => router.push("/admin"));
     }, [router, loadPopups]);
@@ -215,6 +220,8 @@ export default function AdminPopupPage() {
     }
 
     return (
+        <>
+        {user && user.autoLogoutMinutes && <AdminSessionMonitor autoLogoutMinutes={user.autoLogoutMinutes} />}
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
             <div className="max-w-4xl mx-auto px-6">
                 {/* Header */}
@@ -570,5 +577,6 @@ export default function AdminPopupPage() {
                 </div>
             )}
         </main>
+        </>
     );
 }

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Calendar, FileText, Image, Users, LogOut, Shield, ClipboardList } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AdminSessionMonitor from "@/components/AdminSessionMonitor";
 
 const menuItems = [
     {
@@ -56,7 +57,7 @@ const menuItems = [
 
 export default function AdminDashboard() {
     const router = useRouter();
-    const [user, setUser] = useState<{ username: string } | null>(null);
+    const [user, setUser] = useState<{ username: string; autoLogoutMinutes?: number } | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -89,8 +90,10 @@ export default function AdminDashboard() {
     }
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
-            <div className="max-w-5xl mx-auto px-6">
+        <>
+            {user && user.autoLogoutMinutes && <AdminSessionMonitor autoLogoutMinutes={user.autoLogoutMinutes} />}
+            <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 font-pretendard pt-24 pb-16">
+                <div className="max-w-5xl mx-auto px-6">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -145,5 +148,6 @@ export default function AdminDashboard() {
                 </div>
             </div>
         </main>
+    </>
     );
 }

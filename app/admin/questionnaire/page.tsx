@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getHeightPercentile, getWeightPercentile, getAgeInMonths, calculateMPH, calculatePAH } from "@/lib/growthPercentile";
 import GrowthChart from "@/components/GrowthChart";
+import AdminSessionMonitor from "@/components/AdminSessionMonitor";
 
 interface Questionnaire {
     id: number;
@@ -284,13 +285,17 @@ export default function QuestionnaireResultsPage() {
     const [copied, setCopied] = useState(false);
     const [chartCopied, setChartCopied] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
+    const [user, setUser] = useState<{ username: string; autoLogoutMinutes?: number } | null>(null);
 
     useEffect(() => {
         fetch("/api/auth/verify")
             .then((res) => res.json())
             .then((data) => {
                 if (!data.authenticated) router.push("/admin");
-                else loadData();
+                else {
+                    setUser(data.user);
+                    loadData();
+                }
             })
             .catch(() => router.push("/admin"));
     }, [router]);
